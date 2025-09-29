@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, CheckCircle, Calendar, List, Clock, Star, Users } from "lucide-react";
 import { Button } from "./ui/button";
 

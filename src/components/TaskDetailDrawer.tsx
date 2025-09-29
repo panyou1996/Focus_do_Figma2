@@ -6,7 +6,7 @@ import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface Task {
   id: number;

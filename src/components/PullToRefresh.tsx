@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, PanInfo } from "motion/react";
+import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 
 interface PullToRefreshProps {

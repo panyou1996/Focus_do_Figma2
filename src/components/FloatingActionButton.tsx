@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface FloatingActionButtonProps {
   onClick: () => void;

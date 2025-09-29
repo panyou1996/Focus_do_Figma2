@@ -2,7 +2,7 @@ import React from "react";
 import { Star, Check, Inbox, AlertTriangle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface Task {
   id: number;

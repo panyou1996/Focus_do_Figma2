@@ -1,6 +1,6 @@
 import React from "react";
 import { Calendar, List, BarChart3, CheckSquare } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface BottomNavbarProps {
   currentView: string;

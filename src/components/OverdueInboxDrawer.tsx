@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, Check, AlertTriangle } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface Task {
   id: number;
