@@ -686,9 +686,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      {/* iPhone 16 Container */}
-      <div className="w-[393px] h-[852px] bg-[#ffffff] relative overflow-hidden rounded-[40px] shadow-2xl border-8 border-black">
+    <div className="w-screen h-screen bg-[#ffffff] relative overflow-hidden">
         {/* Main Content with Pull to Refresh */}
         <div className="h-full pb-20">
           <PullToRefresh
@@ -762,8 +760,6 @@ export default function App() {
             />
           )}
         </AnimatePresence>
-      </div>
-
       <Toaster position="top-center" />
     </div>
   );

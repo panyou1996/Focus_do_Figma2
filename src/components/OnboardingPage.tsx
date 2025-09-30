@@ -134,8 +134,7 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
   const current = onboardingSteps[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-[393px] h-[852px] bg-white relative overflow-hidden rounded-[40px] shadow-2xl border-8 border-black">
+    <div className="w-screen h-screen bg-white relative overflow-hidden">
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6">
@@ -219,7 +218,6 @@ export default function OnboardingPage({ onComplete }: OnboardingPageProps) {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

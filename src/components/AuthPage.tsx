@@ -93,8 +93,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-[393px] h-[852px] bg-white relative overflow-hidden rounded-[40px] shadow-2xl border-8 border-black">
+    <div className="w-screen h-screen bg-white relative overflow-hidden">
         <div className="h-full flex flex-col">
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="w-full max-w-sm">
@@ -267,7 +266,6 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
