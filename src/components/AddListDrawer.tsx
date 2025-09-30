@@ -72,13 +72,10 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
         <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <Plus className="h-4 w-4 text-blue-600" />
-            </div>
+          <div className="flex items-center justify-center gap-3">
             <div>
-              <h1 className="text-lg font-medium">Add New List</h1>
-              <p className="text-sm text-gray-500">Create a new list to organize your tasks</p>
+              <h1 className="text-lg font-medium ">Add New List</h1>
+              
             </div>
           </div>
         </div>
@@ -97,13 +94,13 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
             </div>
             <div>
               <Label>Icon</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-1 overflow-y-auto text-sm">
                 {icons.map(icon => (
                   <button
                     key={icon}
                     type="button"
                     onClick={() => setNewList(prev => ({ ...prev, icon }))}
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${newList.icon === icon ? 'bg-blue-100' : 'bg-gray-100'}`}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-2xl ${newList.icon === icon ? 'bg-blue-100' : 'bg-gray-100'}`}
                   >
                     {icon}
                   </button>
@@ -112,13 +109,13 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
             </div>
             <div>
               <Label>Color</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {colors.map(color => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setNewList(prev => ({ ...prev, color }))}
-                    className={`w-12 h-12 rounded-full ${newList.color === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+                    className={`w-8 h-8 rounded-full ${newList.color === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
                     style={{ backgroundColor: color }}
                   />
                 ))}

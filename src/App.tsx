@@ -16,6 +16,7 @@ import AddTaskDrawer from "./components/AddTaskDrawer";
 import BottomNavbar from "./components/BottomNavbar";
 import FloatingActionButton from "./components/FloatingActionButton";
 import PullToRefresh from "./components/PullToRefresh";
+import ListEditPage from "./components/ListEditPage";
 import ListEdit from "./components/ListEdit";
 import SvgIcon from "./components/shared/SvgIcon";
 import SvgIcon from "./components/shared/SvgIcon";
@@ -233,6 +234,7 @@ const TASKS = [
 ];
 
 type ViewMode = "today" | "lists" | "calendar" | "review";
+type PageMode = ViewMode | "editList";
 type DrawerMode =
   | "taskDetail"
   | "recommended"

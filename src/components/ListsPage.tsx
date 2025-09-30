@@ -38,6 +38,7 @@ interface ListsPageProps {
   onSearchChange: (term: string) => void;
   onListSelect: (listId: number | null) => void;
   onAddList: (list: Omit<TaskList, 'id'>) => void;
+  onListLongPress: (listId: number) => void;
 }
 
 export default function ListsPage({
@@ -51,6 +52,7 @@ export default function ListsPage({
   onSearchChange,
   onListSelect,
   onAddList,
+  onListLongPress,
 }: ListsPageProps) {
   const [isAddListDrawerOpen, setIsAddListDrawerOpen] = useState(false);
 
@@ -150,11 +152,23 @@ export default function ListsPage({
                 const pendingTasks = listTasks.filter(task => !task.completed);
                 const importantTasks = listTasks.filter(task => task.important && !task.completed);
                 
+                let pressAndHold: NodeJS.Timeout;
+                const handleMouseDown = () => {
+                  pressAndHold = setTimeout(() => onListLongPress(list.id), 700);
+                };
+                const handleMouseUp = () => {
+                  clearTimeout(pressAndHold);
+                };
+
                 return (
                   <div
                     key={list.id}
                     className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                     onClick={() => onListSelect(list.id)}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onTouchStart={handleMouseDown}
+                    onTouchEnd={handleMouseUp}
                   >
                     <div className="flex items-start gap-3">
                       <div 
