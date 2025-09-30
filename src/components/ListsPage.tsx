@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus, Filter, Star, Check, MoreHorizontal } from "lucide-react";
+import { Search, Plus, Filter, Star, Check, MoreHorizontal, ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -103,22 +103,23 @@ export default function ListsPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {selectedListId && (
+          {selectedListId ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onListSelect(null)}
             >
-              <Filter className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAddListClick}
+            >
+              <Plus className="h-4 w-4" />
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleAddListClick}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
