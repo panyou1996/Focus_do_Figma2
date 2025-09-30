@@ -325,20 +325,20 @@ export default function CalendarPage({
                       `}
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-xs text-gray-500 mb-1">
+                        <span className="text-xs text-black-500 mb-1 py-0">
                           {['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]}
                         </span>
                         <span className={`text-sm font-medium ${isSelected ? 'text-white' : ''}`}>
                           {date.getDate()}
                         </span>
                         {dayTasks.length > 0 && (
-                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-wrap gap-0.5 justify-center">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-wrap gap-0.3 justify-center">
                             {Array.from({ length: Math.min(dayTasks.length, 6) }).map((_, i) => (
                               <div
                                 key={i}
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  importantTasks.length > 0 && i === 0
-                                    ? (isSelected ? 'bg-yellow-200' : 'bg-yellow-500')
+                                  importantTasks.length > 0 && i <importantTasks.length
+                                    ? (isSelected ? 'bg-yellow-500' : 'bg-yellow-500')
                                     : (isSelected ? 'bg-white/70' : 'bg-gray-400')
                                 }`}
                               />
@@ -419,7 +419,7 @@ export default function CalendarPage({
                           onMouseUp={handleTouchEnd}
                           onMouseLeave={handleTouchEnd}
                           className={`
-                            relative aspect-square p-1 text-sm rounded-lg transition-all duration-200 min-h-[48px] flex flex-col items-center justify-center
+                            relative aspect-square p-0 text-sm rounded-lg transition-all duration-200 min-h-[40px] flex flex-col items-center justify-start
                             ${isSelected 
                               ? 'bg-blue-500 text-white' 
                               : 'hover:bg-gray-100'
@@ -428,15 +428,15 @@ export default function CalendarPage({
                             ${isToday && !isSelected ? 'bg-blue-50 text-blue-600 font-medium' : ''}
                           `}
                         >
-                          <span className="mb-1">{dayInfo.day}</span>
+                          <span className="mt-1">{dayInfo.day}</span>
                           {dayTasks.length > 0 && (
-                            <div className="flex flex-wrap gap-0.5 justify-center">
-                              {Array.from({ length: Math.min(dayTasks.length, 4) }).map((_, i) => (
+                            <div className="flex flex-wrap gap-px justify-center mt-1 w-full px-1">
+                              {Array.from({ length: Math.min(dayTasks.length, 8) }).map((_, i) => (
                                 <div
                                   key={i}
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    importantTasks.length > 0 && i === 0
-                                      ? (isSelected ? 'bg-yellow-200' : 'bg-yellow-500')
+                                    importantTasks.length > 0 && i <importantTasks.length
+                                      ? (isSelected ? 'bg-yellow-500' : 'bg-yellow-500')
                                       : (isSelected ? 'bg-white/70' : 'bg-gray-400')
                                   }`}
                                 />
