@@ -36,7 +36,7 @@ export interface Task {
 export interface TaskList {
   id: number;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   color: string;
   description: string;
 }

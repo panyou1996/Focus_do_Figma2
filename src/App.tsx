@@ -16,6 +16,9 @@ import AddTaskDrawer from "./components/AddTaskDrawer";
 import BottomNavbar from "./components/BottomNavbar";
 import FloatingActionButton from "./components/FloatingActionButton";
 import PullToRefresh from "./components/PullToRefresh";
+import ListEdit from "./components/ListEdit";
+import SvgIcon from "./components/shared/SvgIcon";
+import SvgIcon from "./components/shared/SvgIcon";
 
 // Import data service
 import {
@@ -25,40 +28,44 @@ import {
   TaskList,
 } from "./utils/dataService";
 
+import svgPaths from "./imports/svg-42raqsyfh4";
+
+import svgPaths from "./imports/svg-42raqsyfh4";
+
 // Enhanced task data with new structure
 const TASK_LISTS = [
   {
     id: 1,
     name: "Work",
-    icon: "💼",
+    icon: <SvgIcon pathData={svgPaths.p13f4aa00} size={20} />,
     color: "#3B82F6",
     description: "Professional tasks and projects",
   },
   {
     id: 2,
     name: "Personal",
-    icon: "🏠",
+    icon: <SvgIcon pathData={svgPaths.p14d82600} size={20} />,
     color: "#10B981",
     description: "Personal goals and activities",
   },
   {
     id: 3,
     name: "Health",
-    icon: "🏃",
+    icon: <SvgIcon pathData={svgPaths.p17a4bf30} size={20} />,
     color: "#F59E0B",
     description: "Fitness and wellness tasks",
   },
   {
     id: 4,
     name: "Learning",
-    icon: "📚",
+    icon: <SvgIcon pathData={svgPaths.p19f8d480} size={20} />,
     color: "#8B5CF6",
     description: "Education and skill development",
   },
   {
     id: 5,
     name: "Shopping",
-    icon: "🛒",
+    icon: <SvgIcon pathData={svgPaths.p1bfb7500} size={20} />,
     color: "#EF4444",
     description: "Items to buy and errands",
   },
