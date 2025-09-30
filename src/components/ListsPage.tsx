@@ -40,8 +40,8 @@ interface ListsPageProps {
   onListSelect: (listId: number | null) => void;
   onAddList: (list: Omit<TaskList, 'id'>) => void;
   onListLongPress: (listId: number) => void;
-  onUpdateList: (list: TaskList) => void; // 新增更新列表回调
-  onDeleteList: (listId: number) => void; // 新增删除列表回调
+  onUpdateList: (list: TaskList) => void;
+  onDeleteList: (listId: number) => void;
 }
 
 export default function ListsPage({
@@ -62,9 +62,10 @@ export default function ListsPage({
   const [isAddListDrawerOpen, setIsAddListDrawerOpen] = useState(false);
   const [isEditListDrawerOpen, setIsEditListDrawerOpen] = useState(false);
   const [editingList, setEditingList] = useState<TaskList | null>(null);
+  const [pressingListId, setPressingListId] = useState<number | null>(null);
   
-  // 用于跟踪长按事件的定时器
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // 使用数字类型存储定时器ID
+  const longPressTimerRef = useRef<number | null>(null);
 
   const handleAddListClick = () => {
     setIsAddListDrawerOpen(true);
@@ -74,45 +75,52 @@ export default function ListsPage({
     setIsAddListDrawerOpen(false);
   };
 
-  // 处理长按列表项
+  // 处理长按事件
   const handleListLongPress = (list: TaskList) => {
-    // 调用父组件的长按回调（如果需要）
-    onListLongPress(list.id);
-    // 设置当前编辑的列表并打开编辑抽屉
     setEditingList(list);
     setIsEditListDrawerOpen(true);
+    onListLongPress(list.id);
+    setPressingListId(null);
   };
 
   // 启动长按定时器
-  const startLongPressTimer = (list: TaskList) => {
-    longPressTimerRef.current = setTimeout(() => {
+  const startLongPressTimer = (list: TaskList, event: React.MouseEvent | React.TouchEvent) => {
+    // 阻止默认行为，避免移动端弹出菜单
+    event.preventDefault();
+    
+    clearLongPressTimer();
+    
+    // 设置按压状态
+    setPressingListId(list.id);
+    
+    longPressTimerRef.current = window.setTimeout(() => {
       handleListLongPress(list);
-    }, 700); // 700ms后触发长按
+    }, 500) as unknown as number;
   };
 
-  // 清除长按定时器
+  // 清除定时器
   const clearLongPressTimer = () => {
-    if (longPressTimerRef.current) {
+    if (longPressTimerRef.current !== null) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
+    setPressingListId(null);
   };
 
-  // 处理列表更新
-  const handleUpdateList = (updatedList: TaskList) => {
-    onUpdateList(updatedList);
-    setIsEditListDrawerOpen(false);
-  };
+// 在ListsPage组件中
+const handleUpdateList = (updatedList: TaskList) => {
+  onUpdateList(updatedList);
+  setIsEditListDrawerOpen(false);
+};
 
-  // 处理列表删除
-  const handleDeleteList = (listId: number) => {
-    onDeleteList(listId);
-    setIsEditListDrawerOpen(false);
-    // 如果删除的是当前选中的列表，回到列表视图
-    if (selectedListId === listId) {
-      onListSelect(null);
-    }
-  };
+const handleDeleteList = (listId: number) => {
+  onDeleteList(listId);
+  setIsEditListDrawerOpen(false);
+  // 如果删除当前选中的列表，返回列表视图
+  if (selectedListId === listId) {
+    onListSelect(null);
+  }
+};
 
   const getTaskList = (listId: number) => {
     return taskLists.find(list => list.id === listId);
@@ -205,13 +213,17 @@ export default function ListsPage({
                 return (
                   <div
                     key={list.id}
-                    className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                    className={`bg-white border border-gray-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
+                      ${pressingListId === list.id ? 'ring-2 ring-blue-500 bg-gray-50' : ''}
+                    `}
                     onClick={() => onListSelect(list.id)}
-                    onMouseDown={() => startLongPressTimer(list)}
+                    // 传递事件对象
+                    onMouseDown={(e) => startLongPressTimer(list, e)}
                     onMouseUp={clearLongPressTimer}
                     onMouseLeave={clearLongPressTimer}
-                    onTouchStart={() => startLongPressTimer(list)}
+                    onTouchStart={(e) => startLongPressTimer(list, e)}
                     onTouchEnd={clearLongPressTimer}
+                    onTouchCancel={clearLongPressTimer}
                   >
                     <div className="flex items-start gap-3">
                       <div 
@@ -374,7 +386,7 @@ export default function ListsPage({
         />
       )}
       
-      {/* Edit List Drawer */}
+      {/* Edit List Drawer - 修正props传递 */}
       {isEditListDrawerOpen && editingList && (
         <ListEditPage
           list={editingList}
