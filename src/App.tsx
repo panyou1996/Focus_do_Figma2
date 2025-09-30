@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast, Toaster } from "sonner@2.0.3";
+import { toast, Toaster } from "sonner";
+import { supabase } from "./utils/supabase/client";
 
 // Import all page components
 import AuthPage from "./components/AuthPage";
@@ -17,9 +18,6 @@ import BottomNavbar from "./components/BottomNavbar";
 import FloatingActionButton from "./components/FloatingActionButton";
 import PullToRefresh from "./components/PullToRefresh";
 import ListEditPage from "./components/ListEditPage";
-import ListEdit from "./components/ListEdit";
-import SvgIcon from "./components/shared/SvgIcon";
-import SvgIcon from "./components/shared/SvgIcon";
 
 // Import data service
 import {
@@ -28,8 +26,6 @@ import {
   User,
   TaskList,
 } from "./utils/dataService";
-
-import svgPaths from "./imports/svg-42raqsyfh4";
 
 import svgPaths from "./imports/svg-42raqsyfh4";
 
@@ -277,28 +273,113 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
-      const currentUser = dataService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
+      // 使用Supabase标准方式获取session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        console.log('Found valid session, initializing user...');
+        
+        // 从session中构建用户信息
+        const userData: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email || '',
+          onboarding_completed: session.user.user_metadata?.onboarding_completed || false
+        };
+        
+        setUser(userData);
         setIsAuthenticated(true);
-        setShowOnboarding(!currentUser.onboarding_completed);
-        await loadTasks();
+        setShowOnboarding(!userData.onboarding_completed);
+        
+        // 不等待任务加载，直接进入主页，在后台加载任务
+        console.log('User initialized, loading tasks in background...');
+        // 在后台加载任务，不阻塞主页显示
+        loadTasks().catch(error => {
+          console.error('Background task loading failed:', error);
+        });
+      } else {
+        console.log('No valid session found, user needs to login');
       }
     } catch (error) {
-      console.error("Error initializing app:", error);
+      console.error('Error initializing app:', error);
+      toast.error('初始化应用时出错');
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // 立即停止loading，让用户进入主页
     }
   };
 
+  // 监听Supabase认证状态变化
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
+        
+        if (event === 'SIGNED_IN' && session) {
+          // 只有在用户状态确实改变时才更新
+          if (!user || user.id !== session.user.id) {
+            console.log('New user signed in, updating state...');
+            
+            const userData: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: session.user.user_metadata?.name || session.user.email || '',
+              onboarding_completed: session.user.user_metadata?.onboarding_completed || false
+            };
+            
+            setUser(userData);
+            setIsAuthenticated(true);
+            setShowOnboarding(!userData.onboarding_completed);
+            
+            // 加载任务
+            try {
+              await loadTasks();
+            } catch (error) {
+              console.error('Error loading tasks after login:', error);
+            }
+          } else {
+            console.log('Same user, skipping state update');
+          }
+        } else if (event === 'SIGNED_OUT' || !session) {
+          // 用户登出或session无效
+          console.log('User signed out or session invalid');
+          setUser(null);
+          setIsAuthenticated(false);
+          setTasks([]);
+          setShowOnboarding(false);
+          setViewMode("today");
+          setDrawerMode(null);
+          setSelectedTask(null);
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          // Token刷新成功，不需要重新设置引导界面
+          console.log('Token refreshed successfully, keeping current state');
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]); // 添加user依赖以便检查用户是否改变
+
   const loadTasks = async () => {
+    console.log('loadTasks called');
     try {
+      console.log('Calling dataService.getTasks()...');
       const userTasks = await dataService.getTasks();
+      console.log('Got tasks:', userTasks.length, 'tasks');
       setTasks(userTasks);
       setLastSyncTime(dataService.getLastSyncTime());
+      console.log('Tasks loaded successfully');
+      
+      // 如果有任务加载成功，显示提示
+      if (userTasks.length > 0) {
+        toast.success(`加载了 ${userTasks.length} 个任务`);
+      }
     } catch (error) {
       console.error("Error loading tasks:", error);
-      toast.error("Failed to load tasks");
+      
+      // 在后台加载时只显示轻微的错误提示
+      toast.warning("任务加载异常，显示缓存数据");
     }
   };
 
@@ -319,15 +400,9 @@ export default function App() {
     }
   };
 
-  const handleSignOut = () => {
-    dataService.signOut();
-    setUser(null);
-    setIsAuthenticated(false);
-    setTasks([]);
-    setShowOnboarding(false);
-    setViewMode("today");
-    setDrawerMode(null);
-    setSelectedTask(null);
+  const handleSignOut = async () => {
+    await dataService.signOut();
+    // Supabase的onAuthStateChange会自动处理状态清理
   };
 
   // Pull to refresh handler
@@ -495,6 +570,30 @@ export default function App() {
     }
   };
 
+  const toggleTaskFixed = async (
+    taskId: number | string,
+  ) => {
+    try {
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      const updatedTask = await dataService.updateTask(taskId, {
+        isFixed: !task.isFixed,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.id === taskId ? updatedTask : t,
+        ),
+      );
+      
+      toast.success(task.isFixed ? "Task unfixed" : "Task fixed");
+    } catch (error) {
+      console.error("Error toggling task fixed status:", error);
+      toast.error("Failed to update task");
+    }
+  };
+
   const updateTask = async (updatedTask: Task) => {
     try {
       const result = await dataService.updateTask(
@@ -536,6 +635,56 @@ export default function App() {
     }
   };
 
+  // MyDay 相关处理函数
+  const addToMyDay = async (taskId: number | string) => {
+    try {
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      const today = new Date();
+      const updatedTask = await dataService.updateTask(taskId, {
+        dueDate: today,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.id === taskId ? updatedTask : t,
+        ),
+      );
+      
+      toast.success("Task added to My Day");
+    } catch (error) {
+      console.error("Error adding task to My Day:", error);
+      toast.error("Failed to add task to My Day");
+    }
+  };
+
+  const removeFromMyDay = async (taskId: number | string) => {
+    try {
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      // 将任务的到期日期设置为明天
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const updatedTask = await dataService.updateTask(taskId, {
+        dueDate: tomorrow,
+      });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.id === taskId ? updatedTask : t,
+        ),
+      );
+      
+      toast.success("Task removed from My Day");
+    } catch (error) {
+      console.error("Error removing task from My Day:", error);
+      toast.error("Failed to remove task from My Day");
+    }
+  };
+
   const handleAddTaskForDate = (dueDate: Date) => {
     setSelectedDate(dueDate);
     setDrawerMode("addTask");
@@ -545,6 +694,35 @@ const addList = (newList: Omit<TaskList, "id">) => {
     const listWithId = { ...newList, id: Date.now() };
     setTaskLists((prevLists) => [...prevLists, listWithId]);
     toast.success("List created successfully");
+  };
+
+  const updateList = (updatedList: TaskList) => {
+    setTaskLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === updatedList.id ? updatedList : list
+      )
+    );
+    toast.success("List updated successfully");
+  };
+
+  const deleteList = (listId: number) => {
+    setTaskLists((prevLists) =>
+      prevLists.filter((list) => list.id !== listId)
+    );
+    // 删除该列表中的所有任务
+    setTasks((prevTasks) =>
+      prevTasks.filter((task) => task.listId !== listId)
+    );
+    // 如果当前选中的是被删除的列表，则取消选择
+    if (selectedListId === listId) {
+      setSelectedListId(null);
+    }
+    toast.success("List deleted successfully");
+  };
+
+  const handleListLongPress = (listId: number) => {
+    // 长按处理逻辑，这里暂时为空
+    console.log("Long pressed list:", listId);
   };
 
   // Navigation handlers
@@ -604,10 +782,14 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onTaskClick={handleTaskClick}
               onToggleCompletion={toggleTaskCompletion}
               onToggleImportance={toggleTaskImportance}
+              onToggleFixed={toggleTaskFixed}
               onOpenRecommended={() =>
                 setDrawerMode("recommended")
               }
               onOpenOverdue={() => setDrawerMode("overdue")}
+              onDeleteTask={deleteTask}
+              onAddToMyDay={addToMyDay}
+              onRemoveFromMyDay={removeFromMyDay}
             />
           </motion.div>
         );
@@ -623,9 +805,16 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onTaskClick={handleTaskClick}
               onToggleCompletion={toggleTaskCompletion}
               onToggleImportance={toggleTaskImportance}
+              onToggleFixed={toggleTaskFixed}
               onSearchChange={setSearchTerm}
               onListSelect={setSelectedListId}
               onAddList={addList}
+              onListLongPress={handleListLongPress}
+              onUpdateList={updateList}
+              onDeleteList={deleteList}
+              onDeleteTask={deleteTask}
+              onAddToMyDay={addToMyDay}
+              onRemoveFromMyDay={removeFromMyDay}
             />
           </motion.div>
         );

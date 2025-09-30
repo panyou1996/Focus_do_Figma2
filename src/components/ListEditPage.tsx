@@ -142,82 +142,87 @@ export default function ListEditPage({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 max-h-[70vh]">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="name">List Name *</Label>
-              <Input
-                id="name"
-                value={editingList.name}
-                onChange={(e) => 
-                  setEditingList(prev => ({ ...prev, name: e.target.value }))
-                }
-                placeholder="e.g., Work, Groceries, etc."
-                className="mt-1"
-                required
-              />
-            </div>
-            
-            <div>
-              <Label>Icon</Label>
-              <div className="flex flex-wrap gap-2 mt-1 overflow-y-auto text-sm">
-                {icons.map(icon => (
-                  <button
-                    key={icon}
-                    type="button"
-                    onClick={() => 
-                      setEditingList(prev => ({ ...prev, icon }))
-                    }
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-2xl ${
-                      editingList.icon === icon 
-                        ? 'ring-2 ring-blue-500 bg-blue-100' 
-                        : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                  >
-                    {icon}
-                  </button>
-                ))}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 pb-0">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="name">List Name *</Label>
+                <Input
+                  id="name"
+                  value={editingList.name}
+                  onChange={(e) => 
+                    setEditingList(prev => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="e.g., Work, Groceries, etc."
+                  className="mt-1"
+                  required
+                />
               </div>
-            </div>
-            
-            <div>
-              <Label>Color</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {colors.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => 
-                      setEditingList(prev => ({ ...prev, color }))
-                    }
-                    className={`w-8 h-8 rounded-full ${
-                      editingList.color === color 
-                        ? 'ring-2 ring-offset-2 ring-blue-500' 
-                        : ''
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
+              
+              <div>
+                <Label>Icon</Label>
+                <div className="flex flex-wrap gap-2 mt-1 max-h-32 overflow-y-auto">
+                  {icons.map(icon => (
+                    <button
+                      key={icon}
+                      type="button"
+                      onClick={() => 
+                        setEditingList(prev => ({ ...prev, icon }))
+                      }
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
+                        editingList.icon === icon 
+                          ? 'ring-2 ring-blue-500 bg-blue-100' 
+                          : 'bg-gray-100 hover:bg-gray-200'
+                      }`}
+                    >
+                      {icon}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={editingList.description}
-                onChange={(e) => 
-                  setEditingList(prev => ({ ...prev, description: e.target.value }))
-                }
-                placeholder="Add a short description..."
-                className="mt-1"
-                rows={2}
-              />
-            </div>
-            
-            <div className="flex gap-3 pt-4 border-t border-gray-100">
+              
+              <div>
+                <Label>Color</Label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {colors.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => 
+                        setEditingList(prev => ({ ...prev, color }))
+                      }
+                      className={`w-8 h-8 rounded-full ${
+                        editingList.color === color 
+                          ? 'ring-2 ring-offset-2 ring-blue-500' 
+                          : ''
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={editingList.description}
+                  onChange={(e) => 
+                    setEditingList(prev => ({ ...prev, description: e.target.value }))
+                  }
+                  placeholder="Add a short description..."
+                  className="mt-1"
+                  rows={2}
+                />
+              </div>
+            </form>
+          </div>
+          
+          {/* Fixed bottom buttons */}
+          <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+            <div className="flex gap-3">
               <Button
-                type="submit"
+                onClick={handleSubmit}
                 className="flex-1"
                 style={{ backgroundColor: editingList.color }}
                 disabled={!editingList.name.trim()}
@@ -233,7 +238,7 @@ export default function ListEditPage({
                 Cancel
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </motion.div>
     </motion.div>

@@ -164,7 +164,7 @@ export default function RecommendedInboxDrawer({
                             }}
                             className={`p-1 rounded ${task.important ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}`}
                           >
-                            <Star className={`h-4 w-4 ${task.important ? 'fill-current' : ''}`} />
+                            <Star className={`h-5 w-5 ${task.important ? 'fill-current' : ''}`} />
                           </button>
                         </div>
                         

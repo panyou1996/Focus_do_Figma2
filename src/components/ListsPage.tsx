@@ -1,10 +1,21 @@
 import React, { useState, useRef } from "react";
-import { Search, Plus, Filter, Star, Check, MoreHorizontal, ArrowLeft } from "lucide-react";
+import { Search, Plus, Filter, Star, Check, MoreHorizontal, ArrowLeft, Trash2, Minus } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import AddListDrawer from "./AddListDrawer";
 import ListEditPage from "./ListEditPage";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface Task {
   id: number;
@@ -36,12 +47,16 @@ interface ListsPageProps {
   onTaskClick: (task: Task) => void;
   onToggleCompletion: (taskId: number) => void;
   onToggleImportance: (taskId: number) => void;
+  onToggleFixed: (taskId: number) => void;
   onSearchChange: (term: string) => void;
   onListSelect: (listId: number | null) => void;
   onAddList: (list: Omit<TaskList, 'id'>) => void;
   onListLongPress: (listId: number) => void;
   onUpdateList: (list: TaskList) => void;
   onDeleteList: (listId: number) => void;
+  onDeleteTask: (taskId: number) => void;
+  onAddToMyDay?: (taskId: number) => void;
+  onRemoveFromMyDay?: (taskId: number) => void;
 }
 
 export default function ListsPage({
@@ -52,20 +67,37 @@ export default function ListsPage({
   onTaskClick,
   onToggleCompletion,
   onToggleImportance,
+  onToggleFixed,
   onSearchChange,
   onListSelect,
   onAddList,
   onListLongPress,
   onUpdateList,
   onDeleteList,
+  onDeleteTask,
+  onAddToMyDay,
+  onRemoveFromMyDay,
 }: ListsPageProps) {
   const [isAddListDrawerOpen, setIsAddListDrawerOpen] = useState(false);
   const [isEditListDrawerOpen, setIsEditListDrawerOpen] = useState(false);
   const [editingList, setEditingList] = useState<TaskList | null>(null);
   const [pressingListId, setPressingListId] = useState<number | null>(null);
+  const [pressingTaskId, setPressingTaskId] = useState<number | null>(null);
   
   // 使用数字类型存储定时器ID
   const longPressTimerRef = useRef<number | null>(null);
+  const taskLongPressTimerRef = useRef<number | null>(null);
+  const isLongPressActivated = useRef<boolean>(false);
+  
+  // 滑动相关状态
+  const [swipingTaskId, setSwipingTaskId] = useState<number | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [swipeX, setSwipeX] = useState(0);
+  const [deleteConfirmTask, setDeleteConfirmTask] = useState<Task | null>(null);
+  const [myDayConfirmTask, setMyDayConfirmTask] = useState<Task | null>(null);
+  const swipeStartX = useRef(0);
+  const swipeStartY = useRef(0);
+  const isSwipeActive = useRef(false);
 
   const handleAddListClick = () => {
     setIsAddListDrawerOpen(true);
@@ -107,6 +139,49 @@ export default function ListsPage({
     setPressingListId(null);
   };
 
+  // 处理任务长按事件
+  const handleTaskLongPress = (task: Task) => {
+    // 标记长按已激活
+    isLongPressActivated.current = true;
+    
+    // 触发震动反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // 50ms 震动
+    }
+    
+    onToggleFixed(task.id);
+    setPressingTaskId(null);
+  };
+
+  // 启动任务长按定时器
+  const startTaskLongPressTimer = (task: Task, event: React.MouseEvent | React.TouchEvent) => {
+    // 阻止默认行为，避免移动端弹出菜单
+    event.preventDefault();
+    
+    clearTaskLongPressTimer();
+    
+    // 设置按压状态
+    setPressingTaskId(task.id);
+    
+    taskLongPressTimerRef.current = window.setTimeout(() => {
+      handleTaskLongPress(task);
+    }, 500) as unknown as number;
+  };
+
+  // 清除任务长按定时器
+  const clearTaskLongPressTimer = () => {
+    if (taskLongPressTimerRef.current !== null) {
+      clearTimeout(taskLongPressTimerRef.current);
+      taskLongPressTimerRef.current = null;
+    }
+    setPressingTaskId(null);
+    
+    // 延迟重置长按标记，防止点击事件立即触发
+    setTimeout(() => {
+      isLongPressActivated.current = false;
+    }, 100);
+  };
+
 // 在ListsPage组件中
 const handleUpdateList = (updatedList: TaskList) => {
   onUpdateList(updatedList);
@@ -121,6 +196,105 @@ const handleDeleteList = (listId: number) => {
     onListSelect(null);
   }
 };
+
+  // 处理任务点击事件
+  const handleTaskClick = (task: Task) => {
+    // 如果刚刚执行了长按或滑动，则不触发点击事件
+    if (isLongPressActivated.current || isSwipeActive.current) {
+      return;
+    }
+    onTaskClick(task);
+  };
+
+  // 滑动处理函数
+  const handleSwipeStart = (task: Task, event: React.TouchEvent | React.MouseEvent) => {
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    
+    swipeStartX.current = clientX;
+    swipeStartY.current = clientY;
+    setSwipingTaskId(task.id);
+    setSwipeX(0);
+    setSwipeDirection(null);
+    isSwipeActive.current = false;
+  };
+
+  const handleSwipeMove = (event: React.TouchEvent | React.MouseEvent) => {
+    if (swipingTaskId === null) return;
+    
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    
+    const deltaX = clientX - swipeStartX.current;
+    const deltaY = clientY - swipeStartY.current;
+    
+    // 检查是否为水平滑动（而非垂直滑动）
+    if (Math.abs(deltaY) > Math.abs(deltaX) || Math.abs(deltaX) < 10) {
+      return;
+    }
+    
+    event.preventDefault();
+    isSwipeActive.current = true;
+    
+    const direction = deltaX > 0 ? 'right' : 'left';
+    const distance = Math.min(Math.abs(deltaX), 120); // 限制最大滑动距离
+    
+    setSwipeDirection(direction);
+    setSwipeX(deltaX > 0 ? distance : -distance);
+  };
+
+  const handleSwipeEnd = (task: Task) => {
+    if (swipingTaskId === null) return;
+    
+    const threshold = 60; // 触发阈值
+    
+    if (Math.abs(swipeX) > threshold) {
+      if (swipeDirection === 'left') {
+        // 左滑删除
+        setDeleteConfirmTask(task);
+      } else if (swipeDirection === 'right') {
+        // 右滑添加/移除MyDay
+        setMyDayConfirmTask(task);
+      }
+    }
+    
+    // 重置滑动状态
+    setSwipingTaskId(null);
+    setSwipeX(0);
+    setSwipeDirection(null);
+    
+    // 延迟重置滑动标记
+    setTimeout(() => {
+      isSwipeActive.current = false;
+    }, 100);
+  };
+
+  // 确认删除任务
+  const handleConfirmDelete = () => {
+    if (deleteConfirmTask) {
+      onDeleteTask(deleteConfirmTask.id);
+      setDeleteConfirmTask(null);
+    }
+  };
+
+  // 确认MyDay操作
+  const handleConfirmMyDay = (action: 'add' | 'remove') => {
+    if (myDayConfirmTask) {
+      if (action === 'add' && onAddToMyDay) {
+        onAddToMyDay(myDayConfirmTask.id);
+      } else if (action === 'remove' && onRemoveFromMyDay) {
+        onRemoveFromMyDay(myDayConfirmTask.id);
+      }
+      setMyDayConfirmTask(null);
+    }
+  };
+
+  // 检查任务是否在MyDay中
+  const isTaskInMyDay = (task: Task | null) => {
+    if (!task || !task.dueDate) return false;
+    const today = new Date();
+    return task.dueDate.toDateString() === today.toDateString();
+  };
 
   const getTaskList = (listId: number) => {
     return taskLists.find(list => list.id === listId);
@@ -148,6 +322,7 @@ const handleDeleteList = (listId: number) => {
   const displayTasks = selectedListId ? tasks : [];
 
   return (
+    <>
     <div className="h-full bg-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -289,15 +464,72 @@ const handleDeleteList = (listId: number) => {
                   const taskList = getTaskList(task.listId);
                   
                   return (
-                    <div
-                      key={task.id}
-                      className={`
-                        bg-white border border-gray-100 rounded-lg p-4 shadow-sm
-                        hover:shadow-md transition-all duration-200 cursor-pointer
-                        ${task.completed ? 'opacity-60' : ''}
-                      `}
-                      onClick={() => onTaskClick(task)}
-                    >
+                    <div key={task.id} className="relative overflow-hidden rounded-lg">
+                      {/* 滑动操作背景 */}
+                      {/* 左滑删除背景 */}
+                      <motion.div
+                        className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4"
+                        initial={{ x: '100%' }}
+                        animate={{ x: swipingTaskId === task.id && swipeDirection === 'left' ? '0%' : '100%' }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Trash2 className="h-5 w-5 text-white" />
+                      </motion.div>
+                      
+                      {/* 右滑MyDay背景 */}
+                      <motion.div
+                        className="absolute inset-0 bg-blue-500 flex items-center justify-start pl-4"
+                        initial={{ x: '-100%' }}
+                        animate={{ x: swipingTaskId === task.id && swipeDirection === 'right' ? '0%' : '-100%' }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {isTaskInMyDay(task) ? (
+                          <Minus className="h-5 w-5 text-white" />
+                        ) : (
+                          <Plus className="h-5 w-5 text-white" />
+                        )}
+                      </motion.div>
+
+                      <motion.div
+                        className={`
+                          bg-white border border-gray-100 rounded-lg p-4 transition-all duration-200 cursor-pointer
+                          ${task.completed ? 'opacity-60' : ''}
+                          ${task.isFixed 
+                            ? 'shadow-md border-blue-100 bg-blue-50/30' 
+                            : 'shadow-sm hover:shadow-md'
+                          }
+                          ${pressingTaskId === task.id ? 'ring-2 ring-blue-500 scale-95' : ''}
+                        `}
+                        animate={{ x: swipingTaskId === task.id ? swipeX : 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        onClick={() => handleTaskClick(task)}
+                        onMouseDown={(e) => {
+                          startTaskLongPressTimer(task, e);
+                          handleSwipeStart(task, e);
+                        }}
+                        onMouseMove={handleSwipeMove}
+                        onMouseUp={() => {
+                          clearTaskLongPressTimer();
+                          handleSwipeEnd(task);
+                        }}
+                        onMouseLeave={() => {
+                          clearTaskLongPressTimer();
+                          handleSwipeEnd(task);
+                        }}
+                        onTouchStart={(e) => {
+                          startTaskLongPressTimer(task, e);
+                          handleSwipeStart(task, e);
+                        }}
+                        onTouchMove={handleSwipeMove}
+                        onTouchEnd={() => {
+                          clearTaskLongPressTimer();
+                          handleSwipeEnd(task);
+                        }}
+                        onTouchCancel={() => {
+                          clearTaskLongPressTimer();
+                          handleSwipeEnd(task);
+                        }}
+                      >
                       <div className="flex items-start gap-3">
                         <button
                           onClick={(e) => {
@@ -327,7 +559,7 @@ const handleDeleteList = (listId: number) => {
                               }}
                               className={`p-1 rounded ${task.important ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}`}
                             >
-                              <Star className={`h-4 w-4 ${task.important ? 'fill-current' : ''}`} />
+                              <Star className={`h-5 w-5 ${task.important ? 'fill-current' : ''}`} />
                             </button>
                           </div>
                           
@@ -359,6 +591,7 @@ const handleDeleteList = (listId: number) => {
                           </div>
                         </div>
                       </div>
+                      </motion.div>
                     </div>
                   );
                 })}
@@ -396,5 +629,49 @@ const handleDeleteList = (listId: number) => {
         />
       )}
     </div>
+
+    {/* 删除确认对话框 */}
+    <AlertDialog open={!!deleteConfirmTask} onOpenChange={() => setDeleteConfirmTask(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>删除任务</AlertDialogTitle>
+          <AlertDialogDescription>
+            确定要删除任务“{deleteConfirmTask?.title}”吗？此操作不可撤销。
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-500 hover:bg-red-600">
+            删除
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* MyDay确认对话框 */}
+    <AlertDialog open={!!myDayConfirmTask} onOpenChange={() => setMyDayConfirmTask(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {myDayConfirmTask && isTaskInMyDay(myDayConfirmTask) ? '从“My Day”中移除' : '添加到“My Day”'}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {myDayConfirmTask && (isTaskInMyDay(myDayConfirmTask) 
+              ? `确定要从“My Day”中移除任务“${myDayConfirmTask.title}”吗？`
+              : `确定要将任务“${myDayConfirmTask.title}”添加到“My Day”吗？`
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={() => handleConfirmMyDay(myDayConfirmTask && isTaskInMyDay(myDayConfirmTask) ? 'remove' : 'add')}
+          >
+            {myDayConfirmTask && isTaskInMyDay(myDayConfirmTask) ? '移除' : '添加'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }
