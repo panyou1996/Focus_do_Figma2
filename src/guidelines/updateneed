@@ -30,7 +30,7 @@ Bugs修复
 5. Task编辑Widget问题
 • Duration值的限定rule有问题，现在不能设60min，只能设61min。请删除限定rule，最终的展示也直接用min，不用转化为h+m。
 • Add New Task和Edit Task的header样式不一致。请统一为：header为一句话，不需要小标题和icon，且居中，header的高度可以低一点，widget更compact。Task Details的header居中后，编辑和删除icon分离，左边是编辑，右边是删除，点击编辑后进入Edit Task Widget（带着此task的属性），而不是单独的样式。
-• Edit Task Widget修改：下面的选项框不够compact：请删除description模块（与comment重复），list和important（可换成toggle btn合并一行，fixed time（换成toogle）和dueday、duration合并一行，start time应该具有日期和时间属性，单独一行。增加subtasks属性。
+• Edit Task Widget修改：下面的选项框不够compact：请title字体放大（突出重点），左侧增加isimportant选项icon，删除description模块（与comment重复），list和duration合并一行，fixed time（换成toogle）和dueday合并一行，start time应该具有日期和时间属性，单独一行。增加subtasks属性（有checkbox）。
 • Task Details也与上面同样变更（可与Edit Task的保持一致，无数值的用--填充）。所有的变更应该保持风格不变，且数据结构改变后，对其他接口的影响也需考虑周全。
 6. Task List问题
 • 现在的格式很优雅，保持不变，但是存在以下bug：
@@ -39,6 +39,8 @@ Bugs修复
 • IsFixed属性没有在Task List上体现，请Fixed Time的Task稍微变更卡片样式（如阴影改变等等形式），让人物看上去有一种被定轧感，是不可调的。
 • 增加快捷编辑IsFixed属性的交互：用户长按Task卡片切换（注意不要与单击交互冲突，可设定一个时间判断，如大于0.5s判定为长按，其余判定为单击等方式规避），增加震动和动效。
 • 当前缺少移除MyDay的交互和选项，可以右滑删除，左滑移除或添加到MyDay。需二次确认。
+• 当有subtasks时，也需要展示出来。
+• 改动时注意风格一致性和对称性。
 7. Today Page下的Recommended Inbox和Overdue Inbox问题
 • 动效bug：当box内仅有一个task时，点击inbox后先会弹出widget，然后里面的task会跳动一下，跳动会很突然且违和，可以换成葱第一个task到最后一个task链式浮现动效。
 • 没有Add To MyDay或者删除的交互。
@@ -54,10 +56,10 @@ Bugs修复
 • 第一次点击会切换到选中日期，如果点击已选中的日期，弹出Add Task Widget，Due Day为选中日期。
 • 右上角添加Toggle，能够切换任务展现形式，默认日期为DueDay日期，可切换为日期为Start Time日期。如默认展示的是DueDay为当前日期的Task，点击可切换为Start Time为当前日期的Task（那些未设定Start Time的任务不展示）。
 3. Review页面换成打卡Page
-• 用户可以添加打卡事项。内容模块包括：打卡（打卡和管理打卡事项）、打卡统计和打卡Blog，用户打卡完成后，可以添加Blog，Blog包含首图、标题、内容和地点、时间等属性。用户可以记录并浏览，并filter这些打卡Blogs（也需要加入到Supabase同步），需考虑到兼容Capacitor。
+• 用户可以添加打卡事项。内容模块包括：打卡（打卡和管理打卡事项）、打卡统计和打卡Blog，用户打卡完成后，可以添加Blog，Blog包含首图、标题、内容和地点、时间等属性(blog详情页可参考同目录下图片blog_view.jpg，注意像素级细节，blogs list可以双列展示，风格一致）。用户可以记录并浏览，并filter这些打卡Blogs（也需要加入到Supabase同步），需考虑到兼容Capacitor。
 4. FAB改造
 • 这个改动会比较大，也是亮点之一：
-• 图标变更，换成附件图片里富有科技感的icon。
+• 图标变更，换成附件图片里富有科技感的icon(同文件夹下的FAB2.jpg，注意像素级细节)。
 • 功能变更：单击Add Task，双击进入快捷打卡功能：呼出系统相机，拍照确认上传后选择打卡项目，弹出编辑打卡Blog Widget编辑标题和内容，发布Blog。长按向左弹出文本输入窗口（动画有科技感并和项目风格匹配），根据用户输入的文本自动识别并属性并添加任务。
 5. 增加用户管理入口
 • 登录、登出、是否云同步、字体大小切换、变更密码等。
