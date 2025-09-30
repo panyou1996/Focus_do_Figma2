@@ -1,0 +1,65 @@
+升级需求
+Figma Make Vibe Coding Todo项目
+这是我用Figma Make Vibe Coding生成的Todo项目。与以往的Todo应用不同，它的特点如下，你应该先通过我的描述深刻理解app的理念：
+1. 聚焦今日
+• 从Lists页面或Calendar页面选择任务添加到Today。
+• Today首页推荐和逾期任务，建议用户添加到Today。
+2. 今日时间轴视图
+• Today页面的任务按照开始时间排序，每个时间段规划井井有条。
+3. 自动规划任务
+• 任务有一个`isFixed`属性，区分固定时间段任务（如会议）和非固定时间段任务。
+• Today页面增加AutoPlan按钮（待规划），根据任务属性和用户作息自动对非固定任务进行规划。计算方法将在后续提供。
+4. 简约但细节精致的UI设计及优雅的动画及UX
+• 让用户使用得心应手，感受到精致感。
+• 设计风格统一，符合iOS及Android设计典范。
+Bugs修复
+1. 删除外边框
+• 应用有一个手机的外边框，且不是平铺整个浏览器页面。
+• 需求：删除外边框，对于手机应用，在保持布局不变的情况下页面铺满界面；对于桌面浏览器，应用识别屏幕尺寸并保持竖屏（左右留白），保持与手机端一致的布局和比例。记住，此app开发要以手机优先为设计准则。
+2. 日历视图问题
+• 当日有任务的日期数字下面会出现对应数量的dot，导致日期数字比其他日期更靠上。
+• 默认只显示一周（收缩状态）下，点击第三行（This Week这一行）最右边的<>按键，上面的月份会变更，但是一周视图的日期并未变更。点击This Week成为展开状态后，点击的话日期会更新。
+• 解决思路：删除This Week这一行，将点击收缩展开的功能放在第二行的月份文字上面（文字右边添加展开的icon提示用户），在收缩状态下，第二行最左和最右的<>隐藏，只有展开时才出现（fade动效），能够左右选择月份。日历下面左边的日期文字（当天是Today，明天是Tomorrow，之后是日期）删除，因为信息重复了。
+3. 风格不统一
+• 四个navbar对应的page，header的内容形式不一致。
+• 统一改成Lists Page的样式，大header是page名称（这个目前是一致的），名称下面应该是当前page视图下对task的一个summary，而不是日期信息。如Lists页面展示的是list和task的数目，其他页面也按照此理念设计。
+4. Lists Page问题
+• 点击进入和离开list详情时，缺少过渡动画。
+• List详情页，右上角不应该是filter图标，而应是返回。
+• 没有添加和编辑（删除）list的入口。List的属性应该包括：title，description，icon，color。
+5. Task编辑Widget问题
+• Duration值的限定rule有问题，现在不能设60min，只能设61min。请删除限定rule，最终的展示也直接用min，不用转化为h+m。
+• Add New Task和Edit Task的header样式不一致。请统一为：header为一句话，不需要小标题和icon，且居中，header的高度可以低一点，widget更compact。Task Details的header居中后，编辑和删除icon分离，左边是编辑，右边是删除，点击编辑后进入Edit Task Widget（带着此task的属性），而不是单独的样式。
+• Edit Task Widget修改：下面的选项框不够compact：请删除description模块（与comment重复），list和important（可换成toggle btn合并一行，fixed time（换成toogle）和dueday、duration合并一行，start time应该具有日期和时间属性，单独一行。增加subtasks属性。
+• Task Details也与上面同样变更（可与Edit Task的保持一致，无数值的用--填充）。所有的变更应该保持风格不变，且数据结构改变后，对其他接口的影响也需考虑周全。
+6. Task List问题
+• 现在的格式很优雅，保持不变，但是存在以下bug：
+• 最右边圆形checkbox太大了，请于important的星星icon一致。
+• 点击加星后，第二行又出现了important的卡片，重复了可删除。
+• IsFixed属性没有在Task List上体现，请Fixed Time的Task稍微变更卡片样式（如阴影改变等等形式），让人物看上去有一种被定轧感，是不可调的。
+• 增加快捷编辑IsFixed属性的交互：用户长按Task卡片切换（注意不要与单击交互冲突，可设定一个时间判断，如大于0.5s判定为长按，其余判定为单击等方式规避），增加震动和动效。
+• 当前缺少移除MyDay的交互和选项，可以右滑删除，左滑移除或添加到MyDay。需二次确认。
+7. Today Page下的Recommended Inbox和Overdue Inbox问题
+• 动效bug：当box内仅有一个task时，点击inbox后先会弹出widget，然后里面的task会跳动一下，跳动会很突然且违和，可以换成葱第一个task到最后一个task链式浮现动效。
+• 没有Add To MyDay或者删除的交互。
+• 如果任务已经添加到了Today，Recommend Inbox里面不应该出现。
+8. 夜间模式问题
+• 有的btn和背景一个颜色或者文字与btn背景一个颜色，请修复。
+新增功能和属性
+1. 添加Capacitor支持
+• 最终输出是apk的形式，需要在项目中增加Capacitor的支持并编译成功。
+• 需要符合iOS和Android应用的UI设计规范，并适配Notch、打孔屏和底部小白条等。
+• 如果有能够增强用户体验的原生API或者功能也可以加进来，如Haptic震动、通知等。
+2. Calendar界面下新增功能
+• 第一次点击会切换到选中日期，如果点击已选中的日期，弹出Add Task Widget，Due Day为选中日期。
+• 右上角添加Toggle，能够切换任务展现形式，默认日期为DueDay日期，可切换为日期为Start Time日期。如默认展示的是DueDay为当前日期的Task，点击可切换为Start Time为当前日期的Task（那些未设定Start Time的任务不展示）。
+3. Review页面换成打卡Page
+• 用户可以添加打卡事项。内容模块包括：打卡（打卡和管理打卡事项）、打卡统计和打卡Blog，用户打卡完成后，可以添加Blog，Blog包含首图、标题、内容和地点、时间等属性。用户可以记录并浏览，并filter这些打卡Blogs（也需要加入到Supabase同步），需考虑到兼容Capacitor。
+4. FAB改造
+• 这个改动会比较大，也是亮点之一：
+• 图标变更，换成附件图片里富有科技感的icon。
+• 功能变更：单击Add Task，双击进入快捷打卡功能：呼出系统相机，拍照确认上传后选择打卡项目，弹出编辑打卡Blog Widget编辑标题和内容，发布Blog。长按向左弹出文本输入窗口（动画有科技感并和项目风格匹配），根据用户输入的文本自动识别并属性并添加任务。
+5. 增加用户管理入口
+• 登录、登出、是否云同步、字体大小切换、变更密码等。
+以上是所有的需求，请你先仔细阅读所有代码，完全理解布局结构、数据格式、样式布局，在框架改动尽可能小的情况下逐一进行调整（切勿大刀阔斧变更整个项目和样式，或者需要变更时先停下来，提前得到我的确认）。
+你先理解以上所有内容，并向我保证已经阅读并理解了我的每一行代码（如遇文本过大请分批次读取），再写一个updateplan的md（不要遗漏任何一点，需具体详实有执行性），再写一份rule.md，根据以上需求定义一份rule约束和规范，我review两份内容后，等我通知你操作。
