@@ -11,6 +11,7 @@ import TodayPage from "./components/TodayPage";
 import ListsPage from "./components/ListsPage";
 import CalendarPage from "./components/CalendarPage";
 import ReviewPage from "./components/ReviewPage";
+import CheckinPage from "./components/CheckinPage";
 import TaskDetailDrawer from "./components/TaskDetailDrawer";
 import RecommendedInboxDrawer from "./components/RecommendedInboxDrawer";
 import OverdueInboxDrawer from "./components/OverdueInboxDrawer";
@@ -230,7 +231,7 @@ const TASKS = [
   },
 ];
 
-type ViewMode = "today" | "lists" | "calendar" | "review";
+type ViewMode = "today" | "lists" | "calendar" | "review" | "checkin";
 type PageMode = ViewMode | "editList";
 type DrawerMode =
   | "taskDetail"
@@ -799,6 +800,13 @@ const addList = (newList: Omit<TaskList, "id">) => {
         return (
           <motion.div key="review" {...viewProps}>
             <ReviewPage tasks={tasks} taskLists={taskLists} />
+          </motion.div>
+        );
+
+      case "checkin":
+        return (
+          <motion.div key="checkin" {...viewProps}>
+            <CheckinPage onNavigateToToday={() => handleViewChange("today")} />
           </motion.div>
         );
 

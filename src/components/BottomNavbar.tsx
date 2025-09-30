@@ -1,10 +1,10 @@
 import React from "react";
-import { Calendar, List, BarChart3, CheckSquare } from "lucide-react";
+import { Calendar, List, BarChart3, CheckSquare, Target } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface BottomNavbarProps {
   currentView: string;
-  onViewChange: (view: "today" | "lists" | "calendar" | "review") => void;
+  onViewChange: (view: "today" | "lists" | "calendar" | "review" | "checkin") => void;
 }
 
 export default function BottomNavbar({ currentView, onViewChange }: BottomNavbarProps) {
@@ -13,11 +13,12 @@ export default function BottomNavbar({ currentView, onViewChange }: BottomNavbar
     { id: "lists", label: "Lists", icon: List },
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "review", label: "Review", icon: BarChart3 },
+    { id: "checkin", label: "Checkin", icon: Target },
   ];
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
-      <div className="flex items-center justify-around py-2 px-4">
+      <div className="flex items-center justify-around py-2 px-2">
         {navItems.map((item) => {
           const isActive = currentView === item.id;
           
@@ -26,8 +27,8 @@ export default function BottomNavbar({ currentView, onViewChange }: BottomNavbar
               key={item.id}
               onClick={() => onViewChange(item.id as any)}
               className={`
-                flex flex-col items-center justify-center py-2 px-3 rounded-lg
-                transition-colors duration-200 min-w-[60px]
+                flex flex-col items-center justify-center py-2 px-2 rounded-lg
+                transition-colors duration-200 min-w-[50px] flex-1
                 ${isActive 
                   ? 'text-blue-600' 
                   : 'text-gray-600 hover:text-gray-800'
