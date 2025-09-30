@@ -362,35 +362,7 @@ export default function CalendarPage({
                 className="overflow-hidden"
               >
                 <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsCalendarExpanded(false)}
-                      className="flex items-center gap-2 text-gray-600"
-                    >
-                      <span className="text-sm">
-                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </span>
-                      <ChevronUp className="h-4 w-4" />
-                    </Button>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigateMonth('prev')}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigateMonth('next')}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+
 
                   {/* Week headers */}
                   <div className="grid grid-cols-7 gap-1 mb-2">
