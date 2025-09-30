@@ -80,11 +80,8 @@ export default function TodayPage({
           <div>
             <h1 className="text-xl font-medium">Today</h1>
             <p className="text-sm text-gray-500">
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+            {tasks.length} Tasks • {completedTasks.length} Done
+
             </p>
           </div>
         </div>
