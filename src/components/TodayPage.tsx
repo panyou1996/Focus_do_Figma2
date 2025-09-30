@@ -3,6 +3,7 @@ import { Star, Check, Inbox, AlertTriangle, Trash2, Plus, Minus } from "lucide-r
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { NativeService } from "../utils/nativeService";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -105,14 +106,12 @@ export default function TodayPage({
   };
 
   // 处理任务长按事件
-  const handleTaskLongPress = (task: Task) => {
+  const handleTaskLongPress = async (task: Task) => {
     // 标记长按已激活
     isLongPressActivated.current = true;
     
-    // 触发震动反馈
-    if (navigator.vibrate) {
-      navigator.vibrate(50); // 50ms 震动
-    }
+    // 触发原生震动反馈
+    await NativeService.hapticMedium();
     
     onToggleFixed(task.id);
     setPressingTaskId(null);
@@ -415,8 +414,9 @@ export default function TodayPage({
                             </h3>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <motion.button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
+                                  await NativeService.hapticLight();
                                   onToggleImportance(task.id);
                                 }}
                                 className={`p-1.5 rounded-full ${task.important ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}`}
@@ -426,8 +426,9 @@ export default function TodayPage({
                               </motion.button>
                               
                               <motion.button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
+                                  await NativeService.hapticLight();
                                   onToggleCompletion(task.id);
                                 }}
                                 className={`

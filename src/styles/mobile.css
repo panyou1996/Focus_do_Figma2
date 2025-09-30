@@ -1,0 +1,175 @@
+/* 移动端适配CSS - Capacitor安全区域和响应式设计 */
+
+/* 为Capacitor应用添加安全区域支持 */
+:root {
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+}
+
+/* 安全区域工具类 */
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-left {
+  padding-left: max(1rem, env(safe-area-inset-left));
+}
+
+.safe-right {
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.safe-area-full {
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* 针对不同屏幕类型的特殊处理 */
+@supports (padding: max(0px)) {
+  /* iPhone X及以上，带Notch */
+  @media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+    .notch-safe-top {
+      padding-top: max(44px, env(safe-area-inset-top));
+    }
+  }
+  
+  /* iPhone XR */
+  @media screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) {
+    .notch-safe-top {
+      padding-top: max(44px, env(safe-area-inset-top));
+    }
+  }
+  
+  /* iPhone XS Max */
+  @media screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) {
+    .notch-safe-top {
+      padding-top: max(44px, env(safe-area-inset-top));
+    }
+  }
+}
+
+/* 移动端触摸优化 */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 防止在移动端选中文本 */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 移动端滚动优化 */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条但保持功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 移动端按钮点击效果 */
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 状态栏高度适配 */
+.status-bar-height {
+  height: env(safe-area-inset-top);
+  min-height: 20px;
+}
+
+/* 底部导航栏高度适配 */
+.bottom-nav-height {
+  height: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* 主内容区域高度（去除状态栏和导航栏） */
+.main-content-height {
+  height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 60px);
+}
+
+/* 全屏高度（考虑安全区域） */
+.full-screen-height {
+  height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+/* Android状态栏适配 */
+@supports not (padding: max(0px)) {
+  .android-status-bar {
+    padding-top: 24px; /* Android状态栏默认高度 */
+  }
+}
+
+/* 横屏适配 */
+@media screen and (orientation: landscape) {
+  .landscape-safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .landscape-safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* 动态岛适配（iPhone 14 Pro系列） */
+@media screen and (device-width: 393px) and (device-height: 852px) {
+  .dynamic-island-safe {
+    padding-top: max(50px, env(safe-area-inset-top));
+  }
+}
+
+/* 可折叠屏适配 */
+@media screen and (min-width: 768px) and (max-width: 1366px) {
+  .foldable-layout {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* PWA全屏模式适配 */
+@media all and (display-mode: fullscreen) {
+  .pwa-fullscreen {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* 黑暗模式下的安全区域 */
+@media (prefers-color-scheme: dark) {
+  .dark-safe-area {
+    background-color: #000;
+  }
+}
+
+/* 高对比度模式适配 */
+@media (prefers-contrast: high) {
+  .high-contrast-safe {
+    border: 2px solid;
+  }
+}
+
+/* 动画减少适配 */
+@media (prefers-reduced-motion: reduce) {
+  .reduced-motion-safe {
+    animation: none;
+    transition: none;
+  }
+}

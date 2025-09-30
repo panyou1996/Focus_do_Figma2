@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import { supabase } from "./utils/supabase/client";
+import { NativeService, SafeAreaStyles, injectSafeAreaCSS } from "./utils/nativeService";
 
 // Import all page components
 import AuthPage from "./components/AuthPage";
@@ -273,6 +274,22 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
+      // 初始化原生功能
+      if (NativeService.isNative()) {
+        console.log('Initializing native features...');
+        
+        // 注入安全区域CSS
+        injectSafeAreaCSS();
+        
+        // 设置状态栏样式
+        await NativeService.setStatusBarDark();
+        
+        // 隐藏启动屏幕
+        setTimeout(async () => {
+          await NativeService.hideSplashScreen();
+        }, 1000);
+      }
+      
       // 使用Supabase标准方式获取session
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -834,7 +851,7 @@ const addList = (newList: Omit<TaskList, "id">) => {
   }
 
   return (
-    <div className="w-screen h-screen bg-[#ffffff] relative overflow-hidden">
+    <div className={`w-screen h-screen bg-[#ffffff] relative overflow-hidden ${SafeAreaStyles.fullSafePadding}`}>
         {/* Main Content with Pull to Refresh */}
         <div className="h-full pb-20">
           <PullToRefresh
