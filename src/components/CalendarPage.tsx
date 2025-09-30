@@ -241,24 +241,54 @@ export default function CalendarPage({
       </div>
 
       {/* Calendar Navigation */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
+      <div className="flex items-center justify-center p-4 border-b border-gray-100 relative">
+        <AnimatePresence>
+          {isCalendarExpanded && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute left-4"
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigateMonth('prev')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigateMonth('prev')}
+          onClick={() => setIsCalendarExpanded(!isCalendarExpanded)}
+          className="flex items-center gap-2 text-gray-600"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <h2 className="font-medium">
+            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </h2>
+          {isCalendarExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>
-        <h2 className="font-medium">
-          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigateMonth('next')}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        <AnimatePresence>
+          {isCalendarExpanded && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute right-4"
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigateMonth('next')}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -267,33 +297,7 @@ export default function CalendarPage({
           {!isCalendarExpanded ? (
             /* Compact Week View */
             <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsCalendarExpanded(true)}
-                  className="flex items-center gap-2 text-gray-600"
-                >
-                  <span className="text-sm">This Week</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigateMonth('prev')}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigateMonth('next')}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              
               
               <div className="grid grid-cols-7 gap-2">
                 {getCurrentWeekDays().map((date, index) => {
@@ -328,7 +332,7 @@ export default function CalendarPage({
                           {date.getDate()}
                         </span>
                         {dayTasks.length > 0 && (
-                          <div className="flex flex-wrap gap-0.5 mt-1 justify-center">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-wrap gap-0.5 justify-center">
                             {Array.from({ length: Math.min(dayTasks.length, 6) }).map((_, i) => (
                               <div
                                 key={i}
@@ -452,14 +456,6 @@ export default function CalendarPage({
         {/* Selected Date Tasks */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4">
-            <h3 className="font-medium mb-3">
-              {formatDateHeader(selectedDate)}
-              {selectedDateTasks.length > 0 && (
-                <span className="text-sm text-gray-500 ml-2">
-                  ({selectedDateTasks.length} task{selectedDateTasks.length !== 1 ? 's' : ''})
-                </span>
-              )}
-            </h3>
 
             {selectedDateTasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
