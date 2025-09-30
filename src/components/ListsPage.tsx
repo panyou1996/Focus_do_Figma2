@@ -18,7 +18,7 @@ import {
 } from "./ui/alert-dialog";
 
 interface Task {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   listId: number;
@@ -28,6 +28,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
 }
 
@@ -45,18 +47,18 @@ interface ListsPageProps {
   selectedListId: number | null;
   searchTerm: string;
   onTaskClick: (task: Task) => void;
-  onToggleCompletion: (taskId: number) => void;
-  onToggleImportance: (taskId: number) => void;
-  onToggleFixed: (taskId: number) => void;
+  onToggleCompletion: (taskId: number | string) => void;
+  onToggleImportance: (taskId: number | string) => void;
+  onToggleFixed: (taskId: number | string) => void;
   onSearchChange: (term: string) => void;
   onListSelect: (listId: number | null) => void;
   onAddList: (list: Omit<TaskList, 'id'>) => void;
   onListLongPress: (listId: number) => void;
   onUpdateList: (list: TaskList) => void;
   onDeleteList: (listId: number) => void;
-  onDeleteTask: (taskId: number) => void;
-  onAddToMyDay?: (taskId: number) => void;
-  onRemoveFromMyDay?: (taskId: number) => void;
+  onDeleteTask: (taskId: number | string) => void;
+  onAddToMyDay?: (taskId: number | string) => void;
+  onRemoveFromMyDay?: (taskId: number | string) => void;
 }
 
 export default function ListsPage({

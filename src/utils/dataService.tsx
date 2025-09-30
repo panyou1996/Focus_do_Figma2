@@ -24,6 +24,8 @@ export interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean; // 新增：标记任务是否在MyDay中
+  addedToMyDayAt?: Date; // 新增：记录添加到MyDay的时间戳
   notes: string;
   subtasks?: Array<{
     id: number;
@@ -354,6 +356,8 @@ class DataService {
         isFixed: task.is_fixed || false,
         completed: task.completed || false,
         important: task.important || false,
+        isMyDay: task.is_my_day || false,
+        addedToMyDayAt: task.added_to_my_day_at ? new Date(task.added_to_my_day_at) : undefined,
         notes: task.notes || '',
         subtasks: task.subtasks || [],
         userId: task.user_id,
@@ -361,8 +365,11 @@ class DataService {
         updatedAt: task.updated_at
       }));
       
+      // 检查并刷新过期的MyDay任务
+      const refreshedTasks = await this.refreshExpiredMyDayTasks(serverTasks);
+      
       // 智能合并：保护本地离线更改
-      const mergedTasks = this.mergeTasksWithOfflineChanges(serverTasks);
+      const mergedTasks = this.mergeTasksWithOfflineChanges(refreshedTasks);
       
       // 保存合并后的数据到缓存
       this.saveToCache('taskmaster_tasks', mergedTasks);
@@ -425,6 +432,66 @@ class DataService {
     return mergedTasks;
   }
 
+  // MyDay过期检查和刷新逻辑
+  private async refreshExpiredMyDayTasks(tasks: Task[]): Promise<Task[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 设置为今天开始时刻
+    
+    const expiredMyDayTasks: Task[] = [];
+    const refreshedTasks: Task[] = [];
+    
+    for (const task of tasks) {
+      // 检查是否为MyDay任务且有添加时间
+      if (task.isMyDay && task.addedToMyDayAt) {
+        const addedDate = new Date(task.addedToMyDayAt);
+        addedDate.setHours(0, 0, 0, 0); // 设置为添加当天开始时刻
+        
+        // 如果添加日期在今天之前且任务未完成，则认为过期
+        if (addedDate < today && !task.completed) {
+          console.log(`refreshExpiredMyDayTasks: Task "${task.title}" expired from MyDay (added on ${addedDate.toDateString()})`);
+          
+          const expiredTask = {
+            ...task,
+            isMyDay: false,
+            addedToMyDayAt: undefined
+          };
+          
+          expiredMyDayTasks.push(expiredTask);
+          refreshedTasks.push(expiredTask);
+        } else {
+          refreshedTasks.push(task);
+        }
+      } else {
+        refreshedTasks.push(task);
+      }
+    }
+    
+    // 如果有过期任务，批量更新数据库
+    if (expiredMyDayTasks.length > 0) {
+      console.log(`refreshExpiredMyDayTasks: Found ${expiredMyDayTasks.length} expired MyDay tasks, updating database...`);
+      
+      try {
+        // 批量更新过期任务
+        for (const expiredTask of expiredMyDayTasks) {
+          await supabase
+            .from('tasks')
+            .update({
+              is_my_day: false,
+              added_to_my_day_at: null
+            })
+            .eq('id', expiredTask.id);
+        }
+        
+        console.log('refreshExpiredMyDayTasks: Successfully updated expired tasks in database');
+      } catch (error) {
+        console.error('refreshExpiredMyDayTasks: Error updating expired tasks:', error);
+        // 即使数据库更新失败，也返回更新后的数据供前端显示
+      }
+    }
+    
+    return refreshedTasks;
+  }
+
   private getCachedTasks(): Task[] {
     const cached = this.getFromCache('taskmaster_tasks');
     if (cached) {
@@ -453,6 +520,8 @@ class DataService {
           is_fixed: task.isFixed,
           completed: task.completed,
           important: task.important,
+          is_my_day: task.isMyDay || false,
+          added_to_my_day_at: task.addedToMyDayAt ? task.addedToMyDayAt.toISOString() : null,
           notes: task.notes || '',
           subtasks: task.subtasks || [],
           user_id: this.user?.id
@@ -479,6 +548,8 @@ class DataService {
         isFixed: data.is_fixed,
         completed: data.completed,
         important: data.important,
+        isMyDay: data.is_my_day || false,
+        addedToMyDayAt: data.added_to_my_day_at ? new Date(data.added_to_my_day_at) : undefined,
         notes: data.notes || '',
         subtasks: data.subtasks || [],
         userId: data.user_id,
@@ -540,6 +611,8 @@ class DataService {
       if (updates.isFixed !== undefined) updateData.is_fixed = updates.isFixed;
       if (updates.completed !== undefined) updateData.completed = updates.completed;
       if (updates.important !== undefined) updateData.important = updates.important;
+      if (updates.isMyDay !== undefined) updateData.is_my_day = updates.isMyDay;
+      if (updates.addedToMyDayAt !== undefined) updateData.added_to_my_day_at = updates.addedToMyDayAt?.toISOString();
       if (updates.notes !== undefined) updateData.notes = updates.notes;
       if (updates.subtasks !== undefined) updateData.subtasks = updates.subtasks;
       
@@ -569,6 +642,8 @@ class DataService {
         isFixed: data.is_fixed,
         completed: data.completed,
         important: data.important,
+        isMyDay: data.is_my_day || false,
+        addedToMyDayAt: data.added_to_my_day_at ? new Date(data.added_to_my_day_at) : undefined,
         notes: data.notes || '',
         subtasks: data.subtasks || [],
         userId: data.user_id,
@@ -730,6 +805,74 @@ class DataService {
       Object.keys(this.getFromCache('taskmaster_pending_updates') || {}).length ||
       this.getFromCache('taskmaster_pending_deletes')?.length
     );
+  }
+
+  // MyDay管理方法
+  async addToMyDay(taskId: number | string): Promise<Task> {
+    console.log(`addToMyDay: Adding task ${taskId} to MyDay`);
+    
+    const now = new Date();
+    const updates: Partial<Task> = {
+      isMyDay: true,
+      addedToMyDayAt: now
+    };
+    
+    return await this.updateTask(taskId, updates);
+  }
+
+  async removeFromMyDay(taskId: number | string): Promise<Task> {
+    console.log(`removeFromMyDay: Removing task ${taskId} from MyDay`);
+    
+    const updates: Partial<Task> = {
+      isMyDay: false,
+      addedToMyDayAt: undefined
+    };
+    
+    return await this.updateTask(taskId, updates);
+  }
+
+  // 获取MyDay任务（替换原有的基于日期的逻辑）
+  getMyDayTasks(allTasks: Task[]): Task[] {
+    return allTasks
+      .filter(task => task.isMyDay && !task.completed)
+      .sort((a, b) => {
+        // 先按时间排序
+        if (a.startTime && b.startTime) {
+          const timeA = a.startTime.split(":").map(Number);
+          const timeB = b.startTime.split(":").map(Number);
+          const minutesA = timeA[0] * 60 + timeA[1];
+          const minutesB = timeB[0] * 60 + timeB[1];
+          return minutesA - minutesB;
+        }
+        // Fixed任务优先
+        if (a.isFixed && a.startTime && (!b.isFixed || !b.startTime)) {
+          return -1;
+        }
+        if (b.isFixed && b.startTime && (!a.isFixed || !a.startTime)) {
+          return 1;
+        }
+        // 然后按重要性
+        if (a.important !== b.important) {
+          return b.important ? 1 : -1;
+        }
+        return 0;
+      });
+  }
+
+  // 获取过期任务（包含从之前的MyDay过期的任务）
+  getOverdueTasksWithMyDayHistory(allTasks: Task[]): Task[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return allTasks.filter((task) => {
+      if (task.completed) return false;
+      
+      const taskDate = new Date(task.dueDate);
+      taskDate.setHours(0, 0, 0, 0);
+      
+      // 包含所有过期任务（无论是否曾经在MyDay中）
+      return taskDate < today;
+    }).sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
   }
 }
 

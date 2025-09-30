@@ -9,7 +9,7 @@ import { Switch } from "./ui/switch";
 import { motion } from "framer-motion";
 
 interface Task {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   listId: number;
@@ -19,6 +19,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
   subtasks?: Array<{
     id: number;
@@ -58,6 +60,7 @@ export default function AddTaskDrawer({
     isFixed: false,
     completed: false,
     important: false,
+    isMyDay: false, // 新增：默认不在MyDay中
     notes: "",
     subtasks: [] as Array<{
       id: number;

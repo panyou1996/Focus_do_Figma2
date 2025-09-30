@@ -15,7 +15,7 @@ import {
 } from "./ui/alert-dialog";
 
 interface Task {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   listId: number;
@@ -25,6 +25,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
 }
 
@@ -41,14 +43,14 @@ interface TodayPageProps {
   recommendedCount: number;
   overdueCount: number;
   onTaskClick: (task: Task) => void;
-  onToggleCompletion: (taskId: number) => void;
-  onToggleImportance: (taskId: number) => void;
-  onToggleFixed: (taskId: number) => void;
+  onToggleCompletion: (taskId: number | string) => void;
+  onToggleImportance: (taskId: number | string) => void;
+  onToggleFixed: (taskId: number | string) => void;
   onOpenRecommended: () => void;
   onOpenOverdue: () => void;
-  onDeleteTask: (taskId: number) => void;
-  onAddToMyDay?: (taskId: number) => void;
-  onRemoveFromMyDay?: (taskId: number) => void;
+  onDeleteTask: (taskId: number | string) => void;
+  onAddToMyDay?: (taskId: number | string) => void;
+  onRemoveFromMyDay?: (taskId: number | string) => void;
 }
 
 export default function TodayPage({
@@ -203,7 +205,7 @@ export default function TodayPage({
         // 左滑删除
         setDeleteConfirmTask(task);
       } else if (swipeDirection === 'right') {
-        // 右滑添加/移除MyDay
+        // 右滑移除MyDay（Today页面只显示MyDay任务，所以右滑总是移除）
         setMyDayConfirmTask(task);
       }
     }
@@ -241,9 +243,8 @@ export default function TodayPage({
 
   // 检查任务是否在MyDay中
   const isTaskInMyDay = (task: Task | null) => {
-    if (!task || !task.dueDate) return false;
-    const today = new Date();
-    return task.dueDate.toDateString() === today.toDateString();
+    if (!task) return false;
+    return task.isMyDay;
   };
 
   return (
@@ -336,18 +337,14 @@ export default function TodayPage({
                         <Trash2 className="h-5 w-5 text-white" />
                       </motion.div>
                       
-                      {/* 右滑MyDay背景 */}
+                      {/* 右滑移除MyDay背景 */}
                       <motion.div
-                        className="absolute inset-0 bg-blue-500 flex items-center justify-start pl-4"
+                        className="absolute inset-0 bg-red-500 flex items-center justify-start pl-4"
                         initial={{ x: '-100%' }}
                         animate={{ x: swipingTaskId === task.id && swipeDirection === 'right' ? '0%' : '-100%' }}
                         transition={{ duration: 0.2 }}
                       >
-                        {isTaskInMyDay(task) ? (
-                          <Minus className="h-5 w-5 text-white" />
-                        ) : (
-                          <Plus className="h-5 w-5 text-white" />
-                        )}
+                        <Minus className="h-5 w-5 text-white" />
                       </motion.div>
 
                       {/* Task Card */}
@@ -512,27 +509,22 @@ export default function TodayPage({
       </AlertDialogContent>
     </AlertDialog>
 
-    {/* MyDay确认对话框 */}
+    {/* MyDay移除确认对话框 */}
     <AlertDialog open={!!myDayConfirmTask} onOpenChange={() => setMyDayConfirmTask(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {isTaskInMyDay(myDayConfirmTask) ? '从“My Day”中移除' : '添加到“My Day”'}
-          </AlertDialogTitle>
+          <AlertDialogTitle>从"My Day"中移除</AlertDialogTitle>
           <AlertDialogDescription>
-            {isTaskInMyDay(myDayConfirmTask) 
-              ? `确定要从“My Day”中移除任务“${myDayConfirmTask?.title}”吗？`
-              : `确定要将任务“${myDayConfirmTask?.title}”添加到“My Day”吗？`
-            }
+            确定要从"My Day"中移除任务"${myDayConfirmTask?.title}"吗？
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>取消</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={() => handleConfirmMyDay(isTaskInMyDay(myDayConfirmTask) ? 'remove' : 'add')}
-            className={isTaskInMyDay(myDayConfirmTask) ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}
+            onClick={() => handleConfirmMyDay('remove')}
+            className="bg-red-500 hover:bg-red-600"
           >
-            {isTaskInMyDay(myDayConfirmTask) ? '移除' : '添加'}
+            移除
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

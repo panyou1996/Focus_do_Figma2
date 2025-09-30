@@ -435,71 +435,29 @@ export default function App() {
   };
 
   const getTodayTasks = () => {
-    const today = new Date();
-    return tasks
-      .filter(
-        (task) =>
-          task.dueDate.toDateString() === today.toDateString(),
-      )
-      .sort((a, b) => {
-        // If both have start times, sort by time
-        if (a.startTime && b.startTime) {
-          const timeA = a.startTime.split(":").map(Number);
-          const timeB = b.startTime.split(":").map(Number);
-          const minutesA = timeA[0] * 60 + timeA[1];
-          const minutesB = timeB[0] * 60 + timeB[1];
-          return minutesA - minutesB;
-        }
-        // Fixed tasks with start time come first
-        if (
-          a.isFixed &&
-          a.startTime &&
-          (!b.isFixed || !b.startTime)
-        ) {
-          return -1;
-        }
-        if (
-          b.isFixed &&
-          b.startTime &&
-          (!a.isFixed || !a.startTime)
-        ) {
-          return 1;
-        }
-        // Then by importance
-        if (a.important !== b.important) {
-          return b.important ? 1 : -1;
-        }
-        return 0;
-      });
+    // 使用新的dataService方法获取MyDay任务
+    return dataService.getMyDayTasks(tasks);
   };
 
   const getRecommendedTasks = () => {
     const today = new Date();
     return tasks.filter((task) => {
-      // Tasks due today that aren't already scheduled for today
-      const isDueToday =
-        task.dueDate.toDateString() === today.toDateString();
-      // Fixed tasks with start time today that aren't in today's view
-      const isFixedToday =
-        task.isFixed &&
-        task.startTime &&
-        task.dueDate.toDateString() === today.toDateString();
-
-      return (isDueToday || isFixedToday) && !task.completed;
+      // 只推荐未完成且不在MyDay中的任务
+      if (task.completed || task.isMyDay) return false;
+      
+      // 今天到期的任务
+      const isDueToday = task.dueDate.toDateString() === today.toDateString();
+      
+      // 今天的Fixed任务
+      const isFixedToday = task.isFixed && task.startTime && isDueToday;
+      
+      return isDueToday || isFixedToday;
     });
   };
 
   const getOverdueTasks = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return tasks.filter((task) => {
-      // Tasks with due date before today
-      const taskDate = new Date(task.dueDate);
-      taskDate.setHours(0, 0, 0, 0);
-
-      return taskDate < today && !task.completed;
-    });
+    // 使用新的dataService方法获取过期任务（包含MyDay历史）
+    return dataService.getOverdueTasksWithMyDayHistory(tasks);
   };
 
   const getFilteredTasks = () => {
@@ -635,16 +593,10 @@ export default function App() {
     }
   };
 
-  // MyDay 相关处理函数
+  // MyDay 相关处理函数 - 使用新的dataService方法
   const addToMyDay = async (taskId: number | string) => {
     try {
-      const task = tasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      const today = new Date();
-      const updatedTask = await dataService.updateTask(taskId, {
-        dueDate: today,
-      });
+      const updatedTask = await dataService.addToMyDay(taskId);
 
       setTasks((prevTasks) =>
         prevTasks.map((t) =>
@@ -661,16 +613,7 @@ export default function App() {
 
   const removeFromMyDay = async (taskId: number | string) => {
     try {
-      const task = tasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      // 将任务的到期日期设置为明天
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      
-      const updatedTask = await dataService.updateTask(taskId, {
-        dueDate: tomorrow,
-      });
+      const updatedTask = await dataService.removeFromMyDay(taskId);
 
       setTasks((prevTasks) =>
         prevTasks.map((t) =>
@@ -942,6 +885,8 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onTaskClick={handleTaskClick}
               onToggleCompletion={toggleTaskCompletion}
               onToggleImportance={toggleTaskImportance}
+              onAddToMyDay={addToMyDay}
+              onDeleteTask={deleteTask}
             />
           )}
 
@@ -953,6 +898,8 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onTaskClick={handleTaskClick}
               onToggleCompletion={toggleTaskCompletion}
               onToggleImportance={toggleTaskImportance}
+              onAddToMyDay={addToMyDay}
+              onDeleteTask={deleteTask}
             />
           )}
 

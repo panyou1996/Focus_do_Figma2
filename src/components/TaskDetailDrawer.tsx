@@ -19,6 +19,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
   subtasks?: Array<{
     id: number;

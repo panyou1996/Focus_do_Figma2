@@ -5,7 +5,7 @@ import { Badge } from "./ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Task {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   listId: number;
@@ -15,6 +15,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
 }
 
@@ -33,8 +35,8 @@ interface CalendarPageProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
   onTaskClick: (task: Task) => void;
-  onToggleCompletion: (taskId: number) => void;
-  onToggleImportance: (taskId: number) => void;
+  onToggleCompletion: (taskId: number | string) => void;
+  onToggleImportance: (taskId: number | string) => void;
   onAddTask?: (dueDate: Date) => void;
 }
 

@@ -1,10 +1,21 @@
 import React from "react";
-import { Star, Check, Inbox } from "lucide-react";
+import { Star, Check, Inbox, Trash2, Plus } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { motion } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface Task {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   listId: number;
@@ -14,6 +25,8 @@ interface Task {
   isFixed: boolean;
   completed: boolean;
   important: boolean;
+  isMyDay: boolean;
+  addedToMyDayAt?: Date;
   notes: string;
 }
 
@@ -29,8 +42,10 @@ interface RecommendedInboxDrawerProps {
   taskLists: TaskList[];
   onClose: () => void;
   onTaskClick: (task: Task) => void;
-  onToggleCompletion: (taskId: number) => void;
-  onToggleImportance: (taskId: number) => void;
+  onToggleCompletion: (taskId: number | string) => void;
+  onToggleImportance: (taskId: number | string) => void;
+  onAddToMyDay: (taskId: number | string) => void;
+  onDeleteTask: (taskId: number | string) => void;
 }
 
 export default function RecommendedInboxDrawer({
@@ -40,7 +55,11 @@ export default function RecommendedInboxDrawer({
   onTaskClick,
   onToggleCompletion,
   onToggleImportance,
+  onAddToMyDay,
+  onDeleteTask,
 }: RecommendedInboxDrawerProps) {
+  const [deleteConfirmTask, setDeleteConfirmTask] = React.useState<Task | null>(null);
+  const [addToMyDayConfirmTask, setAddToMyDayConfirmTask] = React.useState<Task | null>(null);
   const getTaskList = (listId: number) => {
     return taskLists.find(list => list.id === listId);
   };
@@ -61,6 +80,29 @@ export default function RecommendedInboxDrawer({
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  };
+
+  // 检查任务是否已在Today中
+  const isTaskInToday = (task: Task) => {
+    const today = new Date();
+    return task.dueDate.toDateString() === today.toDateString();
+  };
+
+  // 过滤掉已在Today中的任务
+  const filteredTasks = tasks.filter(task => !isTaskInToday(task));
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirmTask) {
+      onDeleteTask(deleteConfirmTask.id);
+      setDeleteConfirmTask(null);
+    }
+  };
+
+  const handleConfirmAddToMyDay = () => {
+    if (addToMyDayConfirmTask) {
+      onAddToMyDay(addToMyDayConfirmTask.id);
+      setAddToMyDayConfirmTask(null);
+    }
   };
 
   return (
@@ -102,7 +144,7 @@ export default function RecommendedInboxDrawer({
             <div>
               <h1 className="text-lg font-medium">Recommended for Today</h1>
               <p className="text-sm text-gray-500">
-                {tasks.length} task{tasks.length !== 1 ? 's' : ''} suggested
+                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} suggested
               </p>
             </div>
           </div>
@@ -110,7 +152,7 @@ export default function RecommendedInboxDrawer({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 max-h-[60vh]">
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Inbox className="h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium mb-2">All caught up!</h3>
@@ -118,7 +160,7 @@ export default function RecommendedInboxDrawer({
             </div>
           ) : (
             <div className="space-y-3">
-              {tasks.map((task) => {
+              {filteredTasks.map((task, index) => {
                 const taskList = getTaskList(task.listId);
                 
                 return (
@@ -126,14 +168,16 @@ export default function RecommendedInboxDrawer({
                     key={task.id}
                     className={`
                       bg-white border border-gray-100 rounded-lg p-4 shadow-sm
-                      hover:shadow-md transition-all duration-200 cursor-pointer
+                      hover:shadow-md transition-all duration-200
                       ${task.completed ? 'opacity-60' : ''}
                     `}
-                    onClick={() => onTaskClick(task)}
-                    whileTap={{ scale: 0.98 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ 
+                      duration: 0.3,
+                      delay: index * 0.1,
+                      ease: "easeOut"
+                    }}
                   >
                     <div className="flex items-start gap-3">
                       <button
@@ -214,6 +258,33 @@ export default function RecommendedInboxDrawer({
                         </div>
                       </div>
                     </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAddToMyDayConfirmTask(task);
+                        }}
+                        className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add to My Day
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmTask(task);
+                        }}
+                        className="text-red-600 border-red-200 hover:bg-red-50 px-3"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -221,6 +292,42 @@ export default function RecommendedInboxDrawer({
           )}
         </div>
       </motion.div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmTask} onOpenChange={() => setDeleteConfirmTask(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除任务</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要删除任务"{deleteConfirmTask?.title}"吗？此操作不可撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-500 hover:bg-red-600">
+              删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add to My Day Confirmation Dialog */}
+      <AlertDialog open={!!addToMyDayConfirmTask} onOpenChange={() => setAddToMyDayConfirmTask(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>添加到"My Day"</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要将任务"{addToMyDayConfirmTask?.title}"添加到今天的计划中吗？
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAddToMyDay} className="bg-blue-500 hover:bg-blue-600">
+              添加
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }
