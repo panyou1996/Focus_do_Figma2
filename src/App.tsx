@@ -249,7 +249,7 @@ export default function App() {
 
   // App state
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskLists] = useState<TaskList[]>(TASK_LISTS);
+  const [taskLists, setTaskLists] = useState<TaskList[]>(TASK_LISTS);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedListId, setSelectedListId] = useState<
     number | null
@@ -539,6 +539,12 @@ export default function App() {
     setDrawerMode("addTask");
   };
 
+const addList = (newList: Omit<TaskList, "id">) => {
+    const listWithId = { ...newList, id: Date.now() };
+    setTaskLists((prevLists) => [...prevLists, listWithId]);
+    toast.success("List created successfully");
+  };
+
   // Navigation handlers
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -617,6 +623,7 @@ export default function App() {
               onToggleImportance={toggleTaskImportance}
               onSearchChange={setSearchTerm}
               onListSelect={setSelectedListId}
+              onAddList={addList}
             />
           </motion.div>
         );

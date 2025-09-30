@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Search, Plus, Filter, Star, Check, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
+import AddListDrawer from "./AddListDrawer";
 
 interface Task {
   id: number;
@@ -36,6 +37,7 @@ interface ListsPageProps {
   onToggleImportance: (taskId: number) => void;
   onSearchChange: (term: string) => void;
   onListSelect: (listId: number | null) => void;
+  onAddList: (list: Omit<TaskList, 'id'>) => void;
 }
 
 export default function ListsPage({
@@ -48,7 +50,18 @@ export default function ListsPage({
   onToggleImportance,
   onSearchChange,
   onListSelect,
+  onAddList,
 }: ListsPageProps) {
+  const [isAddListDrawerOpen, setIsAddListDrawerOpen] = useState(false);
+
+  const handleAddListClick = () => {
+    setIsAddListDrawerOpen(true);
+  };
+
+  const handleCloseAddListDrawer = () => {
+    setIsAddListDrawerOpen(false);
+  };
+
   const getTaskList = (listId: number) => {
     return taskLists.find(list => list.id === listId);
   };
@@ -99,7 +112,13 @@ export default function ListsPage({
               <Filter className="h-4 w-4" />
             </Button>
           )}
-
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleAddListClick}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -287,6 +306,13 @@ export default function ListsPage({
             Add Task
           </Button>
         </div>
+      )}
+
+      {isAddListDrawerOpen && (
+        <AddListDrawer 
+          onClose={handleCloseAddListDrawer}
+          onAddList={onAddList}
+        />
       )}
     </div>
   );
