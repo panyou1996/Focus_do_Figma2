@@ -6,7 +6,13 @@ import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
-import { motion } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
 
 interface Task {
   id: number | string;
@@ -157,41 +163,21 @@ export default function TaskDetailDrawer({
   };
 
   return (
-    <motion.div
-      className="absolute inset-0 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+    <Drawer
+      open
+      onOpenChange={(isOpen) => !isOpen && onClose()}
     >
-      {/* Backdrop */}
-      <motion.div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-
-      {/* Drawer */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
-      >
+      <DrawerContent className="bg-white">
         {/* Drag Handle */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
-        {/* Header */}
-        <div className="p-4 border-b border-gray-100">
+        <DrawerHeader>
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-medium flex-1 text-center">
+            <DrawerTitle className="flex-1 text-center">
               {isEditing ? 'Edit Task' : 'Task Details'}
-            </h1>
+            </DrawerTitle>
             {!isEditing && (
               <div className="flex gap-2">
                 <Button
@@ -212,7 +198,7 @@ export default function TaskDetailDrawer({
               </div>
             )}
           </div>
-        </div>
+        </DrawerHeader>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
@@ -425,7 +411,7 @@ export default function TaskDetailDrawer({
           </div>
 
           {/* Fixed bottom buttons */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+          <DrawerFooter>
             {isEditing ? (
               <div className="flex gap-3">
                 <Button
@@ -450,9 +436,9 @@ export default function TaskDetailDrawer({
                 Close
               </Button>
             )}
-          </div>
+          </DrawerFooter>
         </div>
-      </motion.div>
-    </motion.div>
+      </DrawerContent>
+    </Drawer>
   );
 }

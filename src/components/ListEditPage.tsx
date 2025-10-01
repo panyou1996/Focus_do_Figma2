@@ -4,7 +4,13 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { motion } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
 
 interface TaskList {
   id: number;
@@ -61,37 +67,13 @@ export default function ListEditPage({
   };
 
   return (
-    <motion.div
-      className="absolute inset-0 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
-      {/* 修复了这里的语法错误 */}
-      <motion.div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-      
-      {/* 添加了阻止事件冒泡的关键代码 */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Drawer open onClose={onClose}>
+      <DrawerContent className="max-h-[90vh] bg-white">
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
         
-        {/* Header with back and delete buttons */}
-        <div className="p-4 border-b border-gray-100">
+        <DrawerHeader>
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
@@ -102,7 +84,7 @@ export default function ListEditPage({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             
-            <h1 className="text-lg font-medium">Edit List</h1>
+            <DrawerTitle className="text-lg font-medium">Edit List</DrawerTitle>
             
             <Button
               variant="ghost"
@@ -113,7 +95,7 @@ export default function ListEditPage({
               <Trash2 className="h-5 w-5" />
             </Button>
           </div>
-        </div>
+        </DrawerHeader>
 
         {/* Delete confirmation banner */}
         {showDeleteConfirm && (
@@ -201,7 +183,7 @@ export default function ListEditPage({
                   ))}
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -210,37 +192,21 @@ export default function ListEditPage({
                   onChange={(e) => 
                     setEditingList(prev => ({ ...prev, description: e.target.value }))
                   }
-                  placeholder="Add a short description..."
-                  className="mt-1"
-                  rows={2}
+                  placeholder="Add a description for your list"
+                  className="mt-1 resize-none"
+                  rows={3}
                 />
               </div>
             </form>
           </div>
-          
-          {/* Fixed bottom buttons */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
-            <div className="flex gap-3">
-              <Button
-                onClick={handleSubmit}
-                className="flex-1"
-                style={{ backgroundColor: editingList.color }}
-                disabled={!editingList.name.trim()}
-              >
-                Update List
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onClose} 
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
         </div>
-      </motion.div>
-    </motion.div>
+
+        <DrawerFooter className="p-4 bg-gray-50 border-t border-gray-100">
+          <Button onClick={handleSubmit} className="w-full">
+            Save Changes
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

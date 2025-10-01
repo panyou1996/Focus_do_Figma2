@@ -6,7 +6,13 @@ import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
-import { motion } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
 
 interface Task {
   id: number | string;
@@ -98,39 +104,19 @@ export default function AddTaskDrawer({
   const selectedList = taskLists.find(list => list.id === newTask.listId);
 
   return (
-    <motion.div
-      className="absolute inset-0 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+    <Drawer
+      open
+      onOpenChange={(isOpen) => !isOpen && onClose()}
     >
-      {/* Backdrop */}
-      <motion.div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-
-      {/* Drawer */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
-      >
+      <DrawerContent className="bg-white">
         {/* Drag Handle */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
-        {/* Header */}
-        <div className="p-4 border-b border-gray-100">
-          <h1 className="text-lg font-medium text-center">Add New Task</h1>
-        </div>
+        <DrawerHeader>
+          <DrawerTitle>Add New Task</DrawerTitle>
+        </DrawerHeader>
 
         {/* Form Content */}
         <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
@@ -316,7 +302,7 @@ export default function AddTaskDrawer({
           </div>
           
           {/* Fixed bottom buttons */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+          <DrawerFooter>
             <div className="flex gap-3">
               <Button 
                 onClick={handleSubmit}
@@ -331,9 +317,9 @@ export default function AddTaskDrawer({
                 Cancel
               </Button>
             </div>
-          </div>
+          </DrawerFooter>
         </div>
-      </motion.div>
-    </motion.div>
+      </DrawerContent>
+    </Drawer>
   );
 }

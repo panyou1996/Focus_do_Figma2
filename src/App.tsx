@@ -973,6 +973,7 @@ const addList = (newList: Omit<TaskList, "id">) => {
               user={user}
               onSignOut={handleSignOut}
               onClose={handleCloseDrawer}
+              isOpen={drawerMode === "userManagement"}
             />
           )}
         </AnimatePresence>

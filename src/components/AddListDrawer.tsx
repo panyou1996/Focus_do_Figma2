@@ -5,7 +5,13 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { motion } from "framer-motion";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
 
 interface TaskList {
   id: number;
@@ -47,37 +53,19 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
   };
 
   return (
-    <motion.div
-      className="absolute inset-0 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+    <Drawer
+      open
+      onOpenChange={(isOpen) => !isOpen && onClose()}
     >
-      <motion.div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-white overflow-hidden"
-        style={{ borderRadius: '16px 16px 0 0' }}
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
-      >
+      <DrawerContent className="bg-white">
         {/* Top indicator */}
         <div className="flex justify-center pt-3 pb-4">
           <div className="w-9 h-1 bg-gray-300 rounded-full" />
         </div>
         
-        {/* Header */}
-        <div className="px-5 pb-6">
-          <h1 className="text-xl font-bold text-gray-900">Add New List</h1>
-        </div>
+        <DrawerHeader>
+          <DrawerTitle>Add New List</DrawerTitle>
+        </DrawerHeader>
         <div className="flex-1 overflow-y-auto px-5 pb-6">
           <form onSubmit={handleSubmit} className="space-y-7">
             {/* List Name */}
@@ -151,27 +139,29 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
             </div>
             
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-8 pb-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 h-12 border border-gray-200 text-gray-900 rounded-lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 h-12 text-white rounded-lg"
-                style={{ backgroundColor: newList.color }}
-                disabled={!newList.name.trim()}
-              >
-                Add List
-              </Button>
-            </div>
+            <DrawerFooter>
+              <div className="flex gap-3 pt-8 pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 h-12 border border-gray-200 text-gray-900 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 h-12 text-white rounded-lg"
+                  style={{ backgroundColor: newList.color }}
+                  disabled={!newList.name.trim()}
+                >
+                  Add List
+                </Button>
+              </div>
+            </DrawerFooter>
           </form>
         </div>
-      </motion.div>
-    </motion.div>
+      </DrawerContent>
+    </Drawer>
   );
 }

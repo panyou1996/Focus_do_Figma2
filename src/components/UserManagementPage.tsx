@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { 
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
 import { 
   User, 
   LogOut, 
@@ -24,12 +30,14 @@ interface UserManagementPageProps {
   user: UserType | null;
   onSignOut: () => void;
   onClose: () => void;
+  isOpen: boolean;
 }
 
 export default function UserManagementPage({
   user,
   onSignOut,
-  onClose
+  onClose,
+  isOpen
 }: UserManagementPageProps) {
   const [isCloudSyncEnabled, setIsCloudSyncEnabled] = useState(true);
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
@@ -153,30 +161,12 @@ export default function UserManagementPage({
   };
 
   return (
-    <motion.div
-      className="drawer-container bg-white z-50"
-      initial={{ x: "100%" }}
-      animate={{ x: 0 }}
-      exit={{ x: "100%" }}
-      transition={{ type: "spring", damping: 30, stiffness: 400 }}
-    >
-      <div className="page-container">
-        {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-100">
-          <div>
-            <h1 className="text-xl font-medium">Settings</h1>
-            <p className="text-sm text-gray-500">Manage your account and preferences</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
+    <Drawer open={isOpen} onClose={onClose}>
+      <DrawerContent className="bg-white">
+        <DrawerHeader>
+          <DrawerTitle className="text-xl font-medium">Settings</DrawerTitle>
+          <p className="text-sm text-gray-500">Manage your account and preferences</p>
+        </DrawerHeader>
         <div className="scrollable-content p-4 space-y-6">
         {/* User Profile Section */}
         <Card className="p-4">
@@ -308,23 +298,25 @@ export default function UserManagementPage({
         </div>
 
         {/* Sign Out */}
-        <Card className="p-4 border-red-100">
-          <Button
-            variant="outline"
-            onClick={handleSignOut}
-            disabled={isLoading}
-            className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-          >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2" />
-            ) : (
-              <LogOut className="h-4 w-4 mr-2" />
-            )}
-            Sign Out
-          </Button>
-        </Card>
+        <DrawerFooter>
+          <Card className="p-4 border-red-100">
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              disabled={isLoading}
+              className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <LogOut className="h-4 w-4 mr-2" />
+              )}
+              Sign Out
+            </Button>
+          </Card>
+        </DrawerFooter>
         </div>
-      </div>
-    </motion.div>
+      </DrawerContent>
+    </Drawer>
   );
 }

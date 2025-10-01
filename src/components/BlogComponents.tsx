@@ -36,6 +36,13 @@ import {
 import { NativeService } from "../utils/nativeService";
 import checkinService from "../utils/checkinService";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
+import {
   CheckinBlog,
   CheckinRecord,
   CheckinItem,
@@ -405,39 +412,17 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
   }
 
   return (
-    <motion.div
-      className="absolute inset-0 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
-      {/* Backdrop */}
-      <motion.div
-        className="absolute inset-0 bg-black/50"
-        onClick={handleClose}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-
-      {/* Drawer */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-hidden"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 400 }}
-      >
+    <Drawer open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DrawerContent className="bg-white">
         {/* Drag Handle */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="p-4 border-b border-gray-100">
-          <h1 className="text-lg font-medium text-center">{editBlog ? 'Edit Blog' : 'New Blog'}</h1>
-        </div>
+        <DrawerHeader>
+          <DrawerTitle className="text-center">{editBlog ? 'Edit Blog' : 'New Blog'}</DrawerTitle>
+        </DrawerHeader>
 
         {/* Form Content */}
         <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
@@ -691,7 +676,7 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
           </div>
           
           {/* Fixed bottom buttons */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+          <DrawerFooter>
             <div className="flex gap-3">
               <Button 
                 onClick={handleSave}
@@ -705,10 +690,10 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
                 Cancel
               </Button>
             </div>
-          </div>
+          </DrawerFooter>
         </div>
-      </motion.div>
-    </motion.div>
+      </DrawerContent>
+      </Drawer>
   );
 }
 
