@@ -422,7 +422,6 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
         {/* Header */}
         <DrawerHeader className="text-center">
           <DrawerTitle>{editBlog ? 'Edit Blog' : 'New Blog'}</DrawerTitle>
-          <p className="text-sm text-gray-500">Share your thoughts and experiences.</p>
         </DrawerHeader>
 
         {/* Form Content */}

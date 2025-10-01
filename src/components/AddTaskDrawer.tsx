@@ -116,7 +116,6 @@ export default function AddTaskDrawer({
 
         <DrawerHeader className="text-center">
           <DrawerTitle>Add New Task</DrawerTitle>
-          <p className="text-sm text-gray-500">Organize your work and life.</p>
         </DrawerHeader>
 
         {/* Form Content */}

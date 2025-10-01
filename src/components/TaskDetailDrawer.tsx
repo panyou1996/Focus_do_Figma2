@@ -177,7 +177,6 @@ export default function TaskDetailDrawer({
           <div className="flex items-center justify-between">
             <div className="flex-1 text-center">
               <DrawerTitle>{isEditing ? 'Edit Task' : 'Task Details'}</DrawerTitle>
-              <p className="text-sm text-gray-500">View or edit your task.</p>
             </div>
             {!isEditing && (
               <div className="flex gap-2">

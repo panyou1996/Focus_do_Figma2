@@ -75,17 +75,9 @@ export default function ListEditPage({
         
         <DrawerHeader>
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-500 hover:bg-gray-100"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            
-            <DrawerTitle className="text-lg font-medium">Edit List</DrawerTitle>
-            
+            <div className="flex-1 text-center">
+              <DrawerTitle className="font-bold">Edit List</DrawerTitle>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -202,9 +194,23 @@ export default function ListEditPage({
         </div>
 
         <DrawerFooter className="p-4 bg-gray-50 border-t border-gray-100">
-          <Button onClick={handleSubmit} className="w-full">
-            Save Changes
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmit} 
+              className="flex-1"
+              style={{ backgroundColor: editingList.color }}
+            >
+              Save Changes
+            </Button>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

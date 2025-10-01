@@ -125,16 +125,11 @@ export default function OverdueInboxDrawer({
           </div>
 
           <DrawerHeader className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-              </div>
-              <div>
-                <DrawerTitle className="text-lg font-medium">Overdue Tasks</DrawerTitle>
-                <p className="text-sm text-gray-500">
-                  {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} need attention
-                </p>
-              </div>
+            <div>
+              <DrawerTitle className="text-lg font-medium">Overdue Tasks</DrawerTitle>
+              <p className="text-sm text-gray-500">
+                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''} need attention
+              </p>
             </div>
           </DrawerHeader>
 

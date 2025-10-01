@@ -65,7 +65,6 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
         
         <DrawerHeader className="text-center">
           <DrawerTitle>Add New List</DrawerTitle>
-          <p className="text-sm text-gray-500">Create a new list to organize your tasks.</p>
         </DrawerHeader>
         <div className="flex-1 overflow-y-auto px-5 pb-6">
           <form onSubmit={handleSubmit} className="space-y-7">
@@ -141,7 +140,7 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
             
             {/* Action Buttons */}
             <DrawerFooter>
-              <div className="flex gap-3 pt-8 pb-6">
+              <div className="flex gap-3 pt-4 pb-4">
                 <Button
                   type="button"
                   variant="outline"
