@@ -12,6 +12,7 @@ import ListsPage from "./components/ListsPage";
 import CalendarPage from "./components/CalendarPage";
 import ReviewPage from "./components/ReviewPage";
 import CheckinPage from "./components/CheckinPage";
+import UserManagementPage from "./components/UserManagementPage";
 import TaskDetailDrawer from "./components/TaskDetailDrawer";
 import RecommendedInboxDrawer from "./components/RecommendedInboxDrawer";
 import OverdueInboxDrawer from "./components/OverdueInboxDrawer";
@@ -238,6 +239,7 @@ type DrawerMode =
   | "recommended"
   | "overdue"
   | "addTask"
+  | "userManagement"
   | null;
 
 export default function App() {
@@ -755,6 +757,7 @@ const addList = (newList: Omit<TaskList, "id">) => {
                 setSelectedDate(new Date());
                 setDrawerMode("addTask");
               }}
+              onOpenSettings={() => setDrawerMode("userManagement")}
             />
           </motion.div>
         );
@@ -889,6 +892,11 @@ const addList = (newList: Omit<TaskList, "id">) => {
         {/* Floating Action Button */}
         <FloatingActionButton
           onClick={() => setDrawerMode("addTask")}
+          onCreateTask={() => setDrawerMode("addTask")}
+          onCreateEvent={() => {
+            setSelectedDate(new Date());
+            setDrawerMode("addTask");
+          }}
         />
 
         {/* Sync Status Indicator */}
@@ -942,6 +950,14 @@ const addList = (newList: Omit<TaskList, "id">) => {
               initialDueDate={selectedDate}
               onClose={handleCloseDrawer}
               onAddTask={addTask}
+            />
+          )}
+          
+          {drawerMode === "userManagement" && (
+            <UserManagementPage
+              user={user}
+              onSignOut={handleSignOut}
+              onClose={handleCloseDrawer}
             />
           )}
         </AnimatePresence>

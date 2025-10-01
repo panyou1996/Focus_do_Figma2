@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Star, Check, Inbox, AlertTriangle, Trash2, Plus, Minus } from "lucide-react";
+import { Star, Check, Inbox, AlertTriangle, Trash2, Plus, Minus, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,6 +53,7 @@ interface TodayPageProps {
   onAddToMyDay?: (taskId: number | string) => void;
   onRemoveFromMyDay?: (taskId: number | string) => void;
   onAddTask?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export default function TodayPage({
@@ -70,6 +71,7 @@ export default function TodayPage({
   onAddToMyDay,
   onRemoveFromMyDay,
   onAddTask,
+  onOpenSettings,
 }: TodayPageProps) {
   const [pressingTaskId, setPressingTaskId] = useState<number | null>(null);
   const taskLongPressTimerRef = useRef<number | null>(null);
@@ -264,16 +266,28 @@ export default function TodayPage({
               })}
             </p>
           </div>
-          {onAddTask && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onAddTask}
-              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onAddTask && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onAddTask}
+                className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            )}
+            {onOpenSettings && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onOpenSettings}
+                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Inbox Buttons */}
