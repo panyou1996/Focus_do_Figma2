@@ -254,7 +254,7 @@ export default function TodayPage({
     <>
     <div className="h-full bg-white flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100">
+      <div className="flex-shrink-0 p-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h1 className="text-xl font-medium">Today</h1>
@@ -337,7 +337,7 @@ export default function TodayPage({
             <p className="text-gray-500">No tasks scheduled. Enjoy your day!</p>
           </div>
         ) : (
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-2 pb-24">{/* 添加底部内边距避免被导航栏遮挡 */}
             {/* Task Timeline */}
             <div className="space-y-1">
               {tasks.map((task, index) => {

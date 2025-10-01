@@ -5,6 +5,11 @@
   "server": {
     "androidScheme": "https"
   },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
@@ -15,7 +20,12 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize": "ionic",
+      "resizeOnFullScreen": true
     }
   }
 }

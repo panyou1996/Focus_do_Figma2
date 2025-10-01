@@ -173,3 +173,107 @@
     transition: none;
   }
 }
+
+/* 移动端视口高度修复 */
+:root {
+  /* 设置CSS自定义属性以获得真实的视口高度 */
+  --vh: 100vh;
+}
+
+/* 针对移动端浏览器的视口高度修复 */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    --vh: 100vh;
+  }
+}
+
+/* 确保body和html不会溢出 */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* 主应用容器样式 */
+.app-container {
+  height: 100vh; /* 回退值 */
+  height: var(--vh);
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 页面内容容器 */
+.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 可滚动内容区域 */
+.scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 抽屉和模态框的全屏样式 */
+.drawer-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  height: var(--vh);
+  overflow: hidden;
+}
+
+/* 安全区域处理 */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+.safe-area-all {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 防止选择和拖拽 */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 移动端触摸优化 */
+button, [role="button"] {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 滚动条优化 */
+.scrollable-content::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}

@@ -277,6 +277,21 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
+      // 设置移动端视口高度
+      const setVH = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      
+      // 初始设置
+      setVH();
+      
+      // 监听窗口大小变化（处理移动端地址栏隐藏等情况）
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(setVH, 100);
+      });
+      
       // 初始化原生功能
       if (NativeService.isNative()) {
         console.log('Initializing native features...');
@@ -730,7 +745,7 @@ const addList = (newList: Omit<TaskList, "id">) => {
       exit: "out",
       variants: pageVariants,
       transition: pageTransition,
-      className: "h-full",
+      className: "h-full flex flex-col",
     };
 
     switch (viewMode) {
@@ -870,9 +885,9 @@ const addList = (newList: Omit<TaskList, "id">) => {
   }
 
   return (
-    <div className={`w-screen h-screen bg-[#ffffff] relative overflow-hidden ${SafeAreaStyles.fullSafePadding}`}>
+    <div className="w-screen h-screen bg-[#ffffff] relative overflow-hidden" style={{ height: '100vh', maxHeight: '100vh' }}>
         {/* Main Content with Pull to Refresh */}
-        <div className="h-full pb-20">
+        <div className="h-full pb-20" style={{ height: 'calc(100vh - 5rem)', overflow: 'hidden' }}>
           <PullToRefresh
             onRefresh={handleRefresh}
             disabled={isRefreshing}
