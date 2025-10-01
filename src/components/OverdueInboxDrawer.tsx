@@ -124,8 +124,8 @@ export default function OverdueInboxDrawer({
             <div className="w-10 h-1 bg-gray-300 rounded-full" />
           </div>
 
-          <DrawerHeader>
-            <div className="flex items-center gap-3 mb-2">
+          <DrawerHeader className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-2">
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </div>

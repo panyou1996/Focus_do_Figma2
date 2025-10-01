@@ -63,8 +63,9 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
           <div className="w-9 h-1 bg-gray-300 rounded-full" />
         </div>
         
-        <DrawerHeader>
+        <DrawerHeader className="text-center">
           <DrawerTitle>Add New List</DrawerTitle>
+          <p className="text-sm text-gray-500">Create a new list to organize your tasks.</p>
         </DrawerHeader>
         <div className="flex-1 overflow-y-auto px-5 pb-6">
           <form onSubmit={handleSubmit} className="space-y-7">

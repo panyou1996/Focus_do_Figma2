@@ -175,9 +175,10 @@ export default function TaskDetailDrawer({
 
         <DrawerHeader>
           <div className="flex items-center justify-between">
-            <DrawerTitle className="flex-1 text-center">
-              {isEditing ? 'Edit Task' : 'Task Details'}
-            </DrawerTitle>
+            <div className="flex-1 text-center">
+              <DrawerTitle>{isEditing ? 'Edit Task' : 'Task Details'}</DrawerTitle>
+              <p className="text-sm text-gray-500">View or edit your task.</p>
+            </div>
             {!isEditing && (
               <div className="flex gap-2">
                 <Button
@@ -415,20 +416,20 @@ export default function TaskDetailDrawer({
             {isEditing ? (
               <div className="flex gap-3">
                 <Button
-                  onClick={handleSave}
-                  className="flex-1"
-                  style={{ backgroundColor: taskList.color }}
-                  disabled={!editedTask.title.trim()}
-                >
-                  Save Changes
-                </Button>
-                <Button
                   type="button"
                   variant="outline"
                   onClick={handleCancel}
                   className="flex-1"
                 >
                   Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  className="flex-1"
+                  style={{ backgroundColor: taskList.color }}
+                  disabled={!editedTask.title.trim()}
+                >
+                  Save Changes
                 </Button>
               </div>
             ) : (

@@ -420,8 +420,9 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
         </div>
 
         {/* Header */}
-        <DrawerHeader>
-          <DrawerTitle className="text-center">{editBlog ? 'Edit Blog' : 'New Blog'}</DrawerTitle>
+        <DrawerHeader className="text-center">
+          <DrawerTitle>{editBlog ? 'Edit Blog' : 'New Blog'}</DrawerTitle>
+          <p className="text-sm text-gray-500">Share your thoughts and experiences.</p>
         </DrawerHeader>
 
         {/* Form Content */}
@@ -678,6 +679,9 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
           {/* Fixed bottom buttons */}
           <DrawerFooter>
             <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
+                Cancel
+              </Button>
               <Button 
                 onClick={handleSave}
                 className="flex-1 bg-blue-500 hover:bg-blue-600"
@@ -685,9 +689,6 @@ export function CreateBlogDrawer({ isOpen, onClose, onCreate, onUpdate, checkinR
               >
                 <Save className="h-4 w-4 mr-2" />
                 {editBlog ? 'Update' : 'Publish'}
-              </Button>
-              <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
-                Cancel
               </Button>
             </div>
           </DrawerFooter>

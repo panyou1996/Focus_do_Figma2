@@ -114,8 +114,9 @@ export default function AddTaskDrawer({
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
 
-        <DrawerHeader>
+        <DrawerHeader className="text-center">
           <DrawerTitle>Add New Task</DrawerTitle>
+          <p className="text-sm text-gray-500">Organize your work and life.</p>
         </DrawerHeader>
 
         {/* Form Content */}
@@ -304,6 +305,9 @@ export default function AddTaskDrawer({
           {/* Fixed bottom buttons */}
           <DrawerFooter>
             <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
               <Button 
                 onClick={handleSubmit}
                 className="flex-1"
@@ -312,9 +316,6 @@ export default function AddTaskDrawer({
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Task
-              </Button>
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-                Cancel
               </Button>
             </div>
           </DrawerFooter>

@@ -117,8 +117,8 @@ export default function RecommendedInboxDrawer({
             <div className="w-10 h-1 bg-gray-300 rounded-full" />
           </div>
 
-          <DrawerHeader>
-            <div className="flex items-center gap-3 mb-2">
+          <DrawerHeader className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-2">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <Inbox className="h-4 w-4 text-blue-600" />
               </div>
