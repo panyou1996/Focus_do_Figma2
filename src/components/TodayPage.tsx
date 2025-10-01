@@ -52,6 +52,7 @@ interface TodayPageProps {
   onDeleteTask: (taskId: number | string) => void;
   onAddToMyDay?: (taskId: number | string) => void;
   onRemoveFromMyDay?: (taskId: number | string) => void;
+  onAddTask?: () => void;
 }
 
 export default function TodayPage({
@@ -68,6 +69,7 @@ export default function TodayPage({
   onDeleteTask,
   onAddToMyDay,
   onRemoveFromMyDay,
+  onAddTask,
 }: TodayPageProps) {
   const [pressingTaskId, setPressingTaskId] = useState<number | null>(null);
   const taskLongPressTimerRef = useRef<number | null>(null);
@@ -262,6 +264,16 @@ export default function TodayPage({
               })}
             </p>
           </div>
+          {onAddTask && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onAddTask}
+              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          )}
         </div>
 
         {/* Inbox Buttons */}

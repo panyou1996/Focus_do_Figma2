@@ -425,7 +425,14 @@ class DataService {
     // 添加本地创建的离线任务
     pendingCreates.forEach((offlineTask: Task) => {
       console.log(`mergeTasksWithOfflineChanges: Adding offline task ${offlineTask.id}`);
-      mergedTasks.push(offlineTask);
+      // 确保日期字段是Date对象
+      const normalizedOfflineTask = {
+        ...offlineTask,
+        dueDate: new Date(offlineTask.dueDate),
+        startDate: offlineTask.startDate ? new Date(offlineTask.startDate) : undefined,
+        addedToMyDayAt: offlineTask.addedToMyDayAt ? new Date(offlineTask.addedToMyDayAt) : undefined,
+      };
+      mergedTasks.push(normalizedOfflineTask);
     });
     
     console.log('mergeTasksWithOfflineChanges: Final merged count:', mergedTasks.length);

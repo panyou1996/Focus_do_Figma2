@@ -751,6 +751,10 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onDeleteTask={deleteTask}
               onAddToMyDay={addToMyDay}
               onRemoveFromMyDay={removeFromMyDay}
+              onAddTask={() => {
+                setSelectedDate(new Date());
+                setDrawerMode("addTask");
+              }}
             />
           </motion.div>
         );
@@ -776,6 +780,10 @@ const addList = (newList: Omit<TaskList, "id">) => {
               onDeleteTask={deleteTask}
               onAddToMyDay={addToMyDay}
               onRemoveFromMyDay={removeFromMyDay}
+              onAddTaskForList={(listId: number) => {
+                setSelectedDate(new Date());
+                setDrawerMode("addTask");
+              }}
             />
           </motion.div>
         );

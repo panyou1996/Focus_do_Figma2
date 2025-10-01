@@ -59,6 +59,7 @@ interface ListsPageProps {
   onDeleteTask: (taskId: number | string) => void;
   onAddToMyDay?: (taskId: number | string) => void;
   onRemoveFromMyDay?: (taskId: number | string) => void;
+  onAddTaskForList?: (listId: number) => void;
 }
 
 export default function ListsPage({
@@ -79,6 +80,7 @@ export default function ListsPage({
   onDeleteTask,
   onAddToMyDay,
   onRemoveFromMyDay,
+  onAddTaskForList,
 }: ListsPageProps) {
   const [isAddListDrawerOpen, setIsAddListDrawerOpen] = useState(false);
   const [isEditListDrawerOpen, setIsEditListDrawerOpen] = useState(false);
@@ -377,9 +379,17 @@ const handleDeleteList = (listId: number) => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
+        <AnimatePresence mode="wait">
         {!selectedListId ? (
           /* Lists Overview */
-          <div className="p-4">
+          <motion.div 
+            key="lists-overview"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="p-4"
+          >
             <div className="grid gap-3">
               {taskLists.map((list) => {
                 const listTasks = getTasksForList(list.id);
@@ -448,10 +458,17 @@ const handleDeleteList = (listId: number) => {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         ) : (
           /* Tasks in Selected List */
-          <div className="p-4">
+          <motion.div 
+            key={`list-${selectedListId}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="p-4"
+          >
             {displayTasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <div className="text-4xl mb-4">{selectedList?.icon}</div>
@@ -599,14 +616,19 @@ const handleDeleteList = (listId: number) => {
                 })}
               </div>
             )}
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       {/* Add Task Button (when list is selected) */}
-      {selectedListId && (
+      {selectedListId && onAddTaskForList && (
         <div className="p-4 border-t border-gray-100">
-          <Button className="w-full" style={{ backgroundColor: selectedList?.color }}>
+          <Button 
+            className="w-full" 
+            style={{ backgroundColor: selectedList?.color }}
+            onClick={() => onAddTaskForList(selectedListId)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Task
           </Button>

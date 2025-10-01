@@ -23,20 +23,17 @@ class CheckinDataService implements CheckinService {
 
   private initialized = false;
 
-  // 初始化服务，检查存储桶存在
+  // 初始化服务（简化版）
   async initialize(): Promise<void> {
     if (this.initialized) return;
     
     try {
-      const bucketExists = await this.checkBucketExists('images');
-      if (!bucketExists) {
-        console.warn('Storage bucket "images" not found. Image upload will not work until the bucket is created manually.');
-      }
+      // 不再检查存储桶，简化初始化逻辑
       this.initialized = true;
       console.log('CheckinDataService initialized successfully');
     } catch (error) {
       console.error('Failed to initialize CheckinDataService:', error);
-      // 不抛出错误，允许应用继续运行，但图片上传可能会失败
+      // 不抛出错误，允许应用继续运行
     }
   }
 
@@ -675,48 +672,27 @@ class CheckinDataService implements CheckinService {
   // 图片上传
   // ================================
 
-  // 检查存储桶是否存在
-  private async checkBucketExists(bucketName: string): Promise<boolean> {
-    try {
-      // 检查桶是否存在
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
-      
-      if (!bucketExists) {
-        console.warn(`Storage bucket '${bucketName}' not found. Please create it manually in Supabase console.`);
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error checking bucket existence:', error);
-      return false;
-    }
-  }
-
   async uploadImage(file: File): Promise<string> {
     try {
-      // 确保服务已初始化
-      await this.initialize();
-      
       const bucketName = 'images';
-      
-      // 检查存储桶是否存在
-      const bucketExists = await this.checkBucketExists(bucketName);
-      if (!bucketExists) {
-        throw new Error('Storage bucket "images" not found. Please create it manually in Supabase console.');
-      }
       
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `checkin-images/${fileName}`;
 
+      // 直接尝试上传，不进行复杂的存储桶检查
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file);
 
       if (uploadError) {
         console.error('Error uploading image:', uploadError);
+        
+        // 如果是存储桶不存在的错误，提供明确的指导
+        if (uploadError.message.includes('not found') || uploadError.message.includes('does not exist')) {
+          throw new Error('存储桶"images"不存在。请在Supabase控制台中创建名为"images"的存储桶，并设置为公开访问。');
+        }
+        
         throw uploadError;
       }
 

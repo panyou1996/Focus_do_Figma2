@@ -13,7 +13,7 @@ export default function BottomNavbar({ currentView, onViewChange }: BottomNavbar
     { id: "lists", label: "Lists", icon: List },
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "review", label: "Review", icon: BarChart3 },
-    { id: "checkin", label: "Checkin", icon: Target },
+    { id: "checkin", label: "Blog", icon: Target },
   ];
 
   return (

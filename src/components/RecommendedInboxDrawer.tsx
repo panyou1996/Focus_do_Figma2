@@ -82,14 +82,8 @@ export default function RecommendedInboxDrawer({
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
   };
 
-  // 检查任务是否已在Today中
-  const isTaskInToday = (task: Task) => {
-    const today = new Date();
-    return task.dueDate.toDateString() === today.toDateString();
-  };
-
-  // 过滤掉已在Today中的任务
-  const filteredTasks = tasks.filter(task => !isTaskInToday(task));
+  // 过滤掉已完成的任务（recommended tasks已经由App.tsx正确过滤了）
+  const filteredTasks = tasks.filter(task => !task.completed);
 
   const handleConfirmDelete = () => {
     if (deleteConfirmTask) {

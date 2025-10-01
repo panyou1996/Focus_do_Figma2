@@ -3,6 +3,7 @@
       "version": "0.1.0",
       "private": true,
       "dependencies": {
+            "@amap/amap-jsapi-loader": "^1.0.1",
             "@capacitor/android": "^7.4.3",
             "@capacitor/cli": "^7.4.3",
             "@capacitor/core": "^7.4.3",

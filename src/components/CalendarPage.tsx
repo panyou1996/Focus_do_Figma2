@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar, Star, Check, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Star, Check, MoreHorizontal, ChevronDown, ChevronUp, SortAsc, Clock, CalendarDays, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,7 @@ interface Task {
   listId: number;
   dueDate: Date;
   startTime: string;
+  startDate?: Date;
   duration: number;
   isFixed: boolean;
   completed: boolean;
@@ -40,6 +41,8 @@ interface CalendarPageProps {
   onAddTask?: (dueDate: Date) => void;
 }
 
+type SortMode = 'dueDate' | 'startTime';
+
 export default function CalendarPage({
   tasks,
   taskLists,
@@ -53,15 +56,27 @@ export default function CalendarPage({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isCalendarExpanded, setIsCalendarExpanded] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [sortMode, setSortMode] = useState<SortMode>('dueDate');
 
   const getTaskList = (listId: number) => {
     return taskLists.find(list => list.id === listId);
   };
 
   const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => 
-      task.dueDate.toDateString() === date.toDateString()
-    );
+    if (sortMode === 'dueDate') {
+      return tasks.filter(task => 
+        task.dueDate.toDateString() === date.toDateString()
+      );
+    } else {
+      // startTime mode - filter by startDate
+      return tasks.filter(task => {
+        if (task.startDate) {
+          return task.startDate.toDateString() === date.toDateString();
+        }
+        // 如果没有startDate，回退到dueDate
+        return task.dueDate.toDateString() === date.toDateString();
+      });
+    }
   };
 
   const getSelectedDateTasks = () => {
@@ -135,7 +150,12 @@ export default function CalendarPage({
   const generateCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
-    const days = [];
+    const days: Array<{
+      date: Date;
+      day: number;
+      isCurrentMonth: boolean;
+      isPrevMonth: boolean;
+    }> = [];
 
     // Previous month days
     const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 0);
@@ -197,7 +217,7 @@ export default function CalendarPage({
     const diff = startOfWeek.getDate() - day;
     startOfWeek.setDate(diff);
 
-    const weekDays = [];
+    const weekDays: Date[] = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
@@ -239,7 +259,32 @@ export default function CalendarPage({
             {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </p>
         </div>
-
+        
+        {/* Sort Toggle */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSortMode(sortMode === 'dueDate' ? 'startTime' : 'dueDate')}
+            className={`flex items-center gap-2 transition-all duration-200 ${
+              sortMode === 'dueDate' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-green-600 bg-green-50'
+            }`}
+          >
+            {sortMode === 'dueDate' ? (
+              <>
+                <CalendarDays className="h-4 w-4" />
+                <span className="text-xs font-medium">Due</span>
+              </>
+            ) : (
+              <>
+                <Clock className="h-4 w-4" />
+                <span className="text-xs font-medium">Start</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Calendar Navigation */}
@@ -515,6 +560,19 @@ export default function CalendarPage({
           </div>
         </div>
       </div>
+      
+      {/* Add Task Button */}
+      {onAddTask && (
+        <div className="p-4 border-t border-gray-100">
+          <Button 
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() => onAddTask(selectedDate)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Task for {formatDateHeader(selectedDate)}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,6 +40,25 @@ This Todo focuses on a "Today" view with timeline-based task organization and fu
 *   **列表项:** 过渡动画、添加/编辑/删除列表（长按编辑，滑动删除）。
 *   **日历页面:** 双击/点击日期添加任务，切换任务视图。
 
+## 环境配置 (Environment Setup)
+
+### 高德地图API配置
+博客功能的位置服务需要配置高德地图API：
+
+1. 访问 [高德开放平台](https://console.amap.com/)
+2. 注册并创建应用（选择"Web服务"类型）
+3. 获取API密钥
+4. 复制 `.env.example` 为 `.env`
+5. 将API密钥填入 `REACT_APP_AMAP_API_KEY`
+
+```bash
+# 复制环境配置文件
+cp .env.example .env
+
+# 编辑配置文件，填入你的高德地图API密钥
+# VITE_AMAP_API_KEY=your_actual_api_key
+```
+
 ## 规则 (Rules)
 
 *   **开发:** 遵循现有代码风格、组件化、清晰的文件结构、依赖管理、测试覆盖。
