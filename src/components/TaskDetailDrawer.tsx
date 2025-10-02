@@ -165,7 +165,7 @@ export default function TaskDetailDrawer({
   return (
     <Drawer
       open
-      onOpenChange={(isOpen) => !isOpen && onClose()}
+      onOpenChange={(isOpen: boolean) => !isOpen && onClose()}
     >
       <DrawerContent className="bg-white">
         {/* Drag Handle */}
@@ -175,37 +175,31 @@ export default function TaskDetailDrawer({
 
         <DrawerHeader>
           <div className="flex items-center justify-between">
-            <div className="flex-1 text-center">
-              <DrawerTitle>{isEditing ? 'Edit Task' : 'Task Details'}</DrawerTitle>
-            </div>
-            {!isEditing && (
-              <div className="flex gap-2">
+            <div className="w-10"></div> {/* 左侧占位符 */}
+            <DrawerTitle>{isEditing ? 'Edit Task' : 'Task Details'}</DrawerTitle>
+            {!isEditing ? (
+              <div className="flex items-center">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsEditing(true)}
+                  className="w-10 h-10 p-0 text-gray-600 hover:text-gray-800"
                 >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDelete}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash2 className="h-4 w-4" />
+                  <Edit className="h-5 w-5" />
                 </Button>
               </div>
+            ) : (
+              <div className="w-10"></div>
             )}
           </div>
         </DrawerHeader>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-          <div className="p-4 pb-0">
-            {isEditing ? (
-              <div className="space-y-4">
-                {/* Title with Important icon */}
+        <div className="flex-1 overflow-y-auto">
+          {isEditing ? (
+            <>
+              {/* Title Input */}
+              <div className="px-4 pb-4">
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -223,104 +217,125 @@ export default function TaskDetailDrawer({
                     />
                   </div>
                 </div>
+              </div>
 
-                {/* Duration */}
-                <div>
-                  <Label className="text-sm text-gray-600">Duration (minutes)</Label>
+              {/* Duration */}
+              <div className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+                <p className="text-[#111418] text-base font-normal leading-normal flex-1 truncate">Duration</p>
+                <div className="shrink-0 flex items-center gap-1">
                   <Input
                     type="number"
                     value={editedTask.duration}
                     onChange={(e) => setEditedTask(prev => ({ ...prev, duration: parseInt(e.target.value) || 60 }))}
-                    className="mt-1"
+                    className="border-none shadow-none focus-visible:ring-0 text-right w-16"
+                    placeholder="60"
+                  />
+                  <span className="text-[#111418] text-base font-normal leading-normal">min</span>
+                </div>
+              </div>
+
+              {/* Fixed Time */}
+              <div className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+                <p className="text-[#111418] text-base font-normal leading-normal flex-1 truncate">Fixed Time</p>
+                <div className="shrink-0">
+                  <label className="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#f0f2f4] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#1172d4]">
+                    <div className="h-full w-[27px] rounded-full bg-white" style={{boxShadow: 'rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px'}}></div>
+                    <input 
+                      type="checkbox" 
+                      className="invisible absolute"
+                      checked={editedTask.isFixed}
+                      onChange={(e) => setEditedTask(prev => ({ ...prev, isFixed: e.target.checked }))}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Due Date */}
+              <div className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+                <p className="text-[#111418] text-base font-normal leading-normal flex-1 truncate">Due Date</p>
+                <div className="shrink-0">
+                  <Input
+                    type="date"
+                    value={formatDateForInput(editedTask.dueDate)}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                    className="border-none shadow-none focus-visible:ring-0 text-right cursor-pointer"
                   />
                 </div>
+              </div>
 
-                {/* Fixed Time Toggle and Due Date */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={editedTask.isFixed}
-                      onCheckedChange={(checked) => setEditedTask(prev => ({ ...prev, isFixed: checked }))}
-                    />
-                    <Label className="text-sm text-gray-600">Fixed Time</Label>
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-600">Due Date</Label>
-                    <Input
-                      type="date"
-                      value={formatDateForInput(editedTask.dueDate)}
-                      onChange={(e) => handleDateChange(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                {/* Start Time */}
-                <div>
-                  <Label className="text-sm text-gray-600">Start Time</Label>
+              {/* Start Time */}
+              <div className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+                <p className="text-[#111418] text-base font-normal leading-normal flex-1 truncate">Start Time</p>
+                <div className="shrink-0">
                   <Input
                     type="time"
                     value={editedTask.startTime}
                     onChange={(e) => setEditedTask(prev => ({ ...prev, startTime: e.target.value }))}
-                    className="mt-1"
+                    className="border-none shadow-none focus-visible:ring-0 text-right cursor-pointer"
+                    placeholder="10:00"
                   />
                 </div>
+              </div>
 
-                {/* Notes */}
-                <div>
-                  <Label className="text-sm text-gray-600">Notes</Label>
-                  <Textarea
-                    value={editedTask.notes}
-                    onChange={(e) => setEditedTask(prev => ({ ...prev, notes: e.target.value }))}
-                    placeholder="Add notes..."
-                    className="mt-1"
-                    rows={3}
+              {/* Subtasks */}
+              <div className="flex items-center justify-between px-4 pb-2 pt-4">
+                <h3 className="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em]">Subtasks</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={addSubtask}
+                  className="w-8 h-8 p-0 text-blue-500 hover:text-blue-600"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {editedTask.subtasks?.map((subtask) => (
+                <div key={subtask.id} className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+                  <Input
+                    value={subtask.title}
+                    onChange={(e) => updateSubtaskTitle(subtask.id, e.target.value)}
+                    placeholder={`Subtask`}
+                    className="text-[#111418] text-base font-normal leading-normal flex-1 truncate border-none shadow-none focus-visible:ring-0"
                   />
-                </div>
-
-                {/* Subtasks */}
-                <div>
-                  <Label className="text-sm text-gray-600">Subtasks</Label>
-                  <div className="mt-1 space-y-2">
-                    {editedTask.subtasks?.map((subtask) => (
-                      <div key={subtask.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={subtask.completed}
-                          onChange={() => toggleSubtaskCompletion(subtask.id)}
-                          className="w-4 h-4 rounded"
-                        />
-                        <Input
-                          value={subtask.title}
-                          onChange={(e) => updateSubtaskTitle(subtask.id, e.target.value)}
-                          placeholder="Subtask..."
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeSubtask(subtask.id)}
-                          className="text-red-500"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="shrink-0 flex items-center gap-2">
+                    <div className="flex size-7 items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={subtask.completed}
+                        onChange={() => toggleSubtaskCompletion(subtask.id)}
+                        className="h-5 w-5 rounded border-[#dbe0e6] border-2 bg-transparent text-[#1172d4] checked:bg-[#1172d4] checked:border-[#1172d4] focus:ring-0 focus:ring-offset-0 focus:border-[#dbe0e6] focus:outline-none"
+                      />
+                    </div>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      onClick={addSubtask}
-                      className="w-full"
+                      onClick={() => removeSubtask(subtask.id)}
+                      className="text-red-500 w-6 h-6 p-0"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Subtask
+                      ×
                     </Button>
                   </div>
                 </div>
+              ))}
+
+              {/* Notes */}
+              <div className="px-4 py-3">
+                <label className="flex flex-col min-w-40 flex-1">
+                  <p className="text-[#111418] text-base font-medium leading-normal pb-2">Notes</p>
+                  <Textarea
+                    value={editedTask.notes}
+                    onChange={(e) => setEditedTask(prev => ({ ...prev, notes: e.target.value }))}
+                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] min-h-24 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal"
+                    placeholder="Add notes..."
+                    rows={3}
+                  />
+                </label>
               </div>
-            ) : (
+            </>
+          ) : (
+            <div className="p-4 pb-0">
               <div className="space-y-4">
                 {/* Task Title and Status */}
                 <div className="flex items-start gap-3">
@@ -407,10 +422,10 @@ export default function TaskDetailDrawer({
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Fixed bottom buttons */}
+          {/* Action Buttons */}
           <DrawerFooter>
             {isEditing ? (
               <div className="flex gap-3">
@@ -432,9 +447,19 @@ export default function TaskDetailDrawer({
                 </Button>
               </div>
             ) : (
-              <Button onClick={onClose} variant="outline" className="w-full">
-                Close
-              </Button>
+              <div className="flex gap-3">
+                <Button onClick={onClose} variant="outline" className="flex-1">
+                  Close
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={handleDelete}
+                  className="text-red-500 hover:bg-red-50 flex-1"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Task
+                </Button>
+              </div>
             )}
           </DrawerFooter>
         </div>

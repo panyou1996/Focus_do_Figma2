@@ -55,112 +55,112 @@ export default function AddListDrawer({ onClose, onAddList }: AddListDrawerProps
   return (
     <Drawer
       open
-      onOpenChange={(isOpen) => !isOpen && onClose()}
+      onOpenChange={(isOpen: boolean) => !isOpen && onClose()}
     >
       <DrawerContent className="bg-white">
-        {/* Top indicator */}
-        <div className="flex justify-center pt-3 pb-4">
-          <div className="w-9 h-1 bg-gray-300 rounded-full" />
+        {/* Drag Handle */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
         
         <DrawerHeader className="text-center">
           <DrawerTitle>Add New List</DrawerTitle>
         </DrawerHeader>
-        <div className="flex-1 overflow-y-auto px-5 pb-6">
-          <form onSubmit={handleSubmit} className="space-y-7">
-            {/* List Name */}
-            <div className="mt-6">
+
+        {/* Form Content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* List Name */}
+          <div className="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
+            <p className="text-[#111418] text-base font-normal leading-normal flex-1 truncate">List Name</p>
+            <div className="shrink-0 flex-1 max-w-[200px]">
               <Input
-                id="name"
                 value={newList.name}
                 onChange={(e) => setNewList(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Work, Groceries, etc."
-                className="h-14 px-4 text-base border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                style={{ marginBottom: '28px' }}
+                placeholder="e.g., Work, Groceries"
+                className="border-none shadow-none focus-visible:ring-0 text-right"
                 required
               />
             </div>
+          </div>
 
-            {/* Icon & Color Section */}
-            <div className="mb-7">
-              <Label className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 block">ICON & COLOR</Label>
-              
-              {/* Icon Selector */}
-              <div className="flex gap-2.5 overflow-x-auto pb-2 mb-5">
-                {icons.map(icon => (
-                  <button
-                    key={icon}
-                    type="button"
-                    onClick={() => setNewList(prev => ({ ...prev, icon }))}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0 transition-all ${
-                      newList.icon === icon 
-                        ? 'text-white' 
-                        : 'bg-gray-100 text-gray-500'
-                    }`}
-                    style={{ 
-                      backgroundColor: newList.icon === icon ? newList.color : undefined 
-                    }}
-                  >
-                    {icon}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Color Selector */}
-              <div className="flex gap-4">
-                {colors.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setNewList(prev => ({ ...prev, color }))}
-                    className={`w-8 h-8 rounded-full transition-all ${
-                      newList.color === color 
-                        ? 'ring-2 ring-white ring-offset-1' 
-                        : ''
-                    }`}
-                    style={{ 
-                      backgroundColor: color,
-                      boxShadow: newList.color === color ? `0 0 0 1px ${color}` : undefined
-                    }}
-                  />
-                ))}
-              </div>
+          {/* Icon Selection */}
+          <div className="px-4 py-3">
+            <p className="text-[#111418] text-base font-medium leading-normal pb-2">Icon</p>
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+              {icons.map(icon => (
+                <button
+                  key={icon}
+                  type="button"
+                  onClick={() => setNewList(prev => ({ ...prev, icon }))}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${
+                    newList.icon === icon 
+                      ? 'ring-2 ring-blue-500 bg-blue-100' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  {icon}
+                </button>
+              ))}
             </div>
-            {/* Description */}
-            <div className="mb-8">
+          </div>
+
+          {/* Color Selection */}
+          <div className="px-4 py-3">
+            <p className="text-[#111418] text-base font-medium leading-normal pb-2">Color</p>
+            <div className="flex flex-wrap gap-2">
+              {colors.map(color => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => setNewList(prev => ({ ...prev, color }))}
+                  className={`w-8 h-8 rounded-full ${
+                    newList.color === color 
+                      ? 'ring-2 ring-offset-2 ring-blue-500' 
+                      : ''
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="px-4 py-3">
+            <label className="flex flex-col min-w-40 flex-1">
+              <p className="text-[#111418] text-base font-medium leading-normal pb-2">Description</p>
               <Textarea
-                id="description"
                 value={newList.description}
                 onChange={(e) => setNewList(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Add a short description..."
-                className="h-20 px-4 py-4 text-base border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] min-h-24 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal"
+                placeholder="Add a description for your list"
                 rows={3}
               />
-            </div>
-            
-            {/* Action Buttons */}
-            <DrawerFooter>
-              <div className="flex gap-3 pt-4 pb-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  className="flex-1 h-12 border border-gray-200 text-gray-900 rounded-lg"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 h-12 text-white rounded-lg"
-                  style={{ backgroundColor: newList.color }}
-                  disabled={!newList.name.trim()}
-                >
-                  Add List
-                </Button>
-              </div>
-            </DrawerFooter>
-          </form>
+            </label>
+          </div>
         </div>
+
+        {/* Action Buttons */}
+        <DrawerFooter>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              className="flex-1"
+              style={{ backgroundColor: newList.color }}
+              disabled={!newList.name.trim()}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add List
+            </Button>
+          </div>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
